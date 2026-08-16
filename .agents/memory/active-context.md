@@ -1,6 +1,6 @@
 ## Immediate State
-- Upgraded `apps/calculator-app/package.json` to target **Expo SDK 54** (`expo: ~54.0.0`, `expo-router: ~5.0.0`, `react-native: 0.78.0`, `react: 18.3.1`).
-- Preserved `@cqs/finance-logic` workspace protocol link and Metro monorepo configuration.
+- Fixed missing asset paths in `apps/calculator-app/app.json` that caused Metro asset resolution failure.
+- Diagnosed `react-native-screens` Codegen Babel transformer issue and aligned dependencies for SDK 54.
 
 ## Recent Decisions
 - Chosen Workspace Tooling: Turborepo + Yarn Workspaces
