@@ -1,8 +1,7 @@
 ## Immediate State
-- Implemented `@cqs/finance-logic` with domain types (`types.ts`), pure engines (`mortgage.ts`, `ltv.ts`, `cashFlow.ts`), clean entrypoint (`index.ts`), and Jest unit test suite (`finance.test.ts`).
-- Configured Jest test environment in `packages/cqs-finance-logic` with `ts-jest`.
-- Built dark-mode mobile UI for `calculator-app` using Expo Router with navigation across Mortgage, LTV, and Cash Flow calculators.
-- Connected all UI screens directly to `@cqs/finance-logic`.
+- Upgrading `apps/calculator-app` from Expo SDK 51 to the latest SDK version to align with Expo Go client on mobile.
+- Retaining pure `@cqs/finance-logic` workspace boundary and Metro monorepo resolver.
+- Clearing Watchman, Metro, Turborepo, and Yarn lock caches to prevent version mismatch hoisting.
 
 ## Recent Decisions
 - Chosen Workspace Tooling: Turborepo + Yarn Workspaces
