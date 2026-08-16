@@ -2,14 +2,13 @@
 
 ## Status Summary
 - **Workspace Architecture**: Completed (Turborepo + Yarn Workspaces)
-- **calculator-app**: Scaffolded & Linked (`apps/calculator-app`)
-- **cqs-finance-logic**: Scaffolded (`packages/cqs-finance-logic`)
+- **calculator-app**: Scaffolded, Connected & Ready (`apps/calculator-app`)
+- **cqs-finance-logic**: Implemented with Jest tests (`packages/cqs-finance-logic`)
 - **CI/CD Workflows**: Configured (`.github/workflows/main.yml`)
 
 ## Completed Milestones
-- Architectural options presented and recommendations selected (Turborepo + Yarn Workspaces, Expo Router, EAS GitHub Actions).
-- Memory Bank initialized and up-to-date.
-- Monorepo root files (`package.json`, `turbo.json`, `tsconfig.base.json`, `.gitignore`).
 - Pure math domain logic library (`packages/cqs-finance-logic` with LTV, Mortgage, Cash Flow, Cap Rate engines).
-- Expo Router mobile app (`apps/calculator-app` with 3 screens, Metro monorepo resolver, EAS config).
-- GitHub Actions CI/CD workflow (`.github/workflows/main.yml`).
+- Jest unit test suite covering 30-year fixed mortgages, amortization, LTV thresholds/PMI, and positive/negative cash flows.
+- Expo Router mobile app (`apps/calculator-app` with 3 screens: Mortgage, LTV, and Cash Flow).
+- Dark theme layout, navigation tabs, and inputs.
+- Turborepo task graph and GitHub Actions CI/CD workflow.

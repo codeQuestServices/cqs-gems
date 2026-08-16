@@ -1,13 +1,31 @@
-export interface MortgageInput {
-  homePrice: number;
-  downPayment: number;
-  annualInterestRate: number; // percentage, e.g. 6.5 for 6.5%
-  loanTermYears: number;      // e.g. 15 or 30
+/**
+ * Property Details representing physical and market asset characteristics
+ */
+export interface PropertyDetails {
+  propertyAddress?: string;
+  purchasePrice: number;
+  appraisedValue?: number;
   annualPropertyTax?: number;
   annualHomeownersInsurance?: number;
   monthlyHOA?: number;
 }
 
+/**
+ * Mortgage Terms & parameters for loan financing
+ */
+export interface MortgageTerms {
+  homePrice: number;
+  downPayment: number;
+  annualInterestRate: number; // e.g. 6.5 for 6.5%
+  loanTermYears: number;      // e.g. 15, 20, 30
+  annualPropertyTax?: number;
+  annualHomeownersInsurance?: number;
+  monthlyHOA?: number;
+}
+
+/**
+ * Result of Mortgage breakdown and amortization calculations
+ */
 export interface MortgageCalculationResult {
   loanAmount: number;
   downPaymentPercent: number;
@@ -20,6 +38,9 @@ export interface MortgageCalculationResult {
   totalCostOfLoan: number;
 }
 
+/**
+ * Single period entry in an amortization schedule
+ */
 export interface AmortizationPeriod {
   month: number;
   principalPayment: number;
@@ -28,18 +49,27 @@ export interface AmortizationPeriod {
   remainingBalance: number;
 }
 
+/**
+ * Loan-To-Value (LTV) inputs
+ */
 export interface LTVInput {
   loanAmount: number;
   appraisedValue: number;
 }
 
+/**
+ * Loan-To-Value (LTV) & PMI analysis results
+ */
 export interface LTVResult {
-  ltvRatio: number; // percentage e.g. 80
+  ltvRatio: number; // percentage e.g. 80.0
   requiresPMI: boolean;
   equityValue: number;
   equityPercent: number;
 }
 
+/**
+ * Cash Flow & Real Estate Investment Analysis inputs
+ */
 export interface CashFlowInput {
   grossMonthlyRentalIncome: number;
   otherMonthlyIncome?: number;
@@ -50,17 +80,23 @@ export interface CashFlowInput {
   monthlyMaintenanceReserve?: number;
   monthlyVacancyReserve?: number;
   propertyManagementFeePercent?: number; // e.g. 8 for 8%
-  totalInitialInvestment?: number;       // Down payment + closing costs + rehab
+  totalInitialInvestment?: number;       // Down payment + closing costs + initial repairs
   propertyPurchasePrice?: number;
 }
 
+/**
+ * Cash Flow & Real Estate Investment Analysis results
+ */
 export interface CashFlowResult {
   totalMonthlyIncome: number;
   operatingExpenses: number;
-  netOperatingIncomeMonthly: number; // NOI without debt service
-  netOperatingIncomeAnnual: number;
-  monthlyCashFlow: number;           // Net cash flow after mortgage/debt service
-  annualCashFlow: number;
-  capRate?: number;                  // Capitalization Rate %
-  cashOnCashReturn?: number;         // Cash on Cash Return %
+  netOperatingIncomeMonthly: number; // NOI (Monthly, before debt service)
+  netOperatingIncomeAnnual: number;  // NOI (Annual, before debt service)
+  monthlyCashFlow: number;           // Net cash flow (after debt service)
+  annualCashFlow: number;            // Net annual cash flow
+  capRate?: number;                  // Capitalization Rate % (Annual NOI / Purchase Price)
+  cashOnCashReturn?: number;         // Cash on Cash Return % (Annual Cash Flow / Total Invested)
 }
+
+// Aliases for compatibility
+export type MortgageInput = MortgageTerms;

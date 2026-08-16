@@ -1,10 +1,8 @@
 ## Immediate State
-- Monorepo scaffold complete with Turborepo and Yarn workspaces.
-- Isolated math & finance library created at `packages/cqs-finance-logic` (Mortgage, LTV, Cash Flow, Cap Rate, Amortization).
-- Expo Router application created at `apps/calculator-app` with 3 screens (Mortgage, LTV, Cash Flow).
-- Metro configured for monorepo symbol resolution (`apps/calculator-app/metro.config.js`).
-- EAS configuration generated (`apps/calculator-app/eas.json`).
-- GitHub Actions CI/CD workflow created at `.github/workflows/main.yml`.
+- Implemented `@cqs/finance-logic` with domain types (`types.ts`), pure engines (`mortgage.ts`, `ltv.ts`, `cashFlow.ts`), clean entrypoint (`index.ts`), and Jest unit test suite (`finance.test.ts`).
+- Configured Jest test environment in `packages/cqs-finance-logic` with `ts-jest`.
+- Built dark-mode mobile UI for `calculator-app` using Expo Router with navigation across Mortgage, LTV, and Cash Flow calculators.
+- Connected all UI screens directly to `@cqs/finance-logic`.
 
 ## Recent Decisions
 - Chosen Workspace Tooling: Turborepo + Yarn Workspaces
