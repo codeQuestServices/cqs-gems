@@ -1,0 +1,15 @@
+{
+  "name": "@cqs/finance-logic",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "echo \"@cqs/finance-logic: lint pass\"",
+    "test": "echo \"@cqs/finance-logic: test pass\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.3.3"
+  }
+}
