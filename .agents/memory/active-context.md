@@ -1,7 +1,6 @@
 ## Immediate State
-- Upgrading `apps/calculator-app` from Expo SDK 51 to the latest SDK version to align with Expo Go client on mobile.
-- Retaining pure `@cqs/finance-logic` workspace boundary and Metro monorepo resolver.
-- Clearing Watchman, Metro, Turborepo, and Yarn lock caches to prevent version mismatch hoisting.
+- Upgraded `apps/calculator-app/package.json` to target **Expo SDK 54** (`expo: ~54.0.0`, `expo-router: ~5.0.0`, `react-native: 0.78.0`, `react: 18.3.1`).
+- Preserved `@cqs/finance-logic` workspace protocol link and Metro monorepo configuration.
 
 ## Recent Decisions
 - Chosen Workspace Tooling: Turborepo + Yarn Workspaces
