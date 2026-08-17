@@ -1,5 +1,6 @@
 ## Immediate State
-- Aligned mortgage total interest & total cost formulas in `packages/cqs-finance-logic/src/mortgage.ts` with standard disclosure convention ($1,918.56 \times 360 - \$320,000 = \$370,681.60$).
-- Updated test assertions in `packages/cqs-finance-logic/src/__tests__/finance.test.ts`.
-- Chosen Routing Strategy: Expo Router
-- Chosen CI/CD Strategy: EAS CLI via GitHub Actions
+- Linked PropGem project ID (`e220ab3d-2a51-4c7f-9369-32b071db644f`) and slug `propgem` with EAS.
+- Added `@expo/metro-runtime` peer dependency for Expo Router.
+- Configured EAS build profiles for preview (direct APK) and production (AAB/IPA).
+- Configured GitHub Actions CI/CD with Node 22 LTS and EAS cloud builds.
+- Registered package name `com.cqs.propgem` on Google Play Console.
