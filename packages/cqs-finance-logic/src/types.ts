@@ -98,5 +98,53 @@ export interface CashFlowResult {
   cashOnCashReturn?: number;         // Cash on Cash Return % (Annual Cash Flow / Total Invested)
 }
 
-// Aliases for compatibility
+/**
+ * Managed Portfolio Property model
+ */
+export type PropertyType = 'PRIMARY' | 'RENTAL' | 'COMMERCIAL';
+
+export interface PortfolioProperty {
+  id: string;
+  name: string;
+  address: string;
+  propertyType: PropertyType;
+  marketValue: number;
+  loanBalance: number;
+  monthlyMortgagePAndI: number;
+  monthlyPropertyTax: number;
+  monthlyInsurance: number;
+  monthlyHOA: number;
+  monthlyMaintenance: number;
+  monthlyRentIncome: number;
+  purchaseDate?: string;
+  financedDate?: string;
+  tenantName?: string;
+}
+
+/**
+ * Aggregate summary across a collection of properties in a portfolio
+ */
+export interface PortfolioSummary {
+  totalAssetValue: number;
+  totalMortgageDebt: number;
+  netRealEstateEquity: number;
+  equitySharePercent: number;
+  blendedLTV: number;
+  totalMonthlyIncome: number;
+  totalMonthlyExpenses: number;
+  netMonthlyCashFlow: number;
+  netAnnualCashFlow: number;
+  annualizedNOI: number;
+  portfolioCapRate: number;
+  breakdown: {
+    rentIncome: number;
+    mortgagePAndI: number;
+    taxes: number;
+    insurance: number;
+    hoaAndMaintenance: number;
+    netCashFlow: number;
+  };
+}
+
+// Aliases for backward compatibility
 export type MortgageInput = MortgageTerms;

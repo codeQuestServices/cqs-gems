@@ -3,6 +3,8 @@ import {
   generateAmortizationSchedule,
   calculateLTV,
   calculateCashFlow,
+  calculatePortfolioSummary,
+  defaultPortfolioProperties,
 } from '../index';
 
 describe('@cqs/finance-logic Test Suite', () => {
@@ -55,7 +57,7 @@ describe('@cqs/finance-logic Test Suite', () => {
 
       expect(schedule).toHaveLength(12);
       expect(schedule[0].month).toBe(1);
-      expect(schedule[0].interestPayment).toBe(1200); // 240,000 * 0.06 / 12
+      expect(schedule[0].interestPayment).toBe(1200);
       expect(schedule[0].remainingBalance).toBeLessThan(240000);
       expect(schedule[11].month).toBe(12);
     });
@@ -109,20 +111,19 @@ describe('@cqs/finance-logic Test Suite', () => {
         monthlyHOA: 50,
         monthlyMaintenanceReserve: 150,
         monthlyVacancyReserve: 150,
-        propertyManagementFeePercent: 8, // 8% of 3100 = 248
+        propertyManagementFeePercent: 8,
         propertyPurchasePrice: 400000,
         totalInitialInvestment: 90000,
       });
 
-      // Operating expenses = 300 + 100 + 50 + 150 + 150 + 248 = 998
       expect(result.totalMonthlyIncome).toBe(3100);
       expect(result.operatingExpenses).toBe(998);
-      expect(result.netOperatingIncomeMonthly).toBe(2102); // 3100 - 998
-      expect(result.netOperatingIncomeAnnual).toBe(25224); // 2102 * 12
-      expect(result.monthlyCashFlow).toBe(602); // 2102 - 1500
-      expect(result.annualCashFlow).toBe(7224); // 602 * 12
-      expect(result.capRate).toBe(6.31); // (25224 / 400000) * 100
-      expect(result.cashOnCashReturn).toBe(8.03); // (7224 / 90000) * 100
+      expect(result.netOperatingIncomeMonthly).toBe(2102);
+      expect(result.netOperatingIncomeAnnual).toBe(25224);
+      expect(result.monthlyCashFlow).toBe(602);
+      expect(result.annualCashFlow).toBe(7224);
+      expect(result.capRate).toBe(6.31);
+      expect(result.cashOnCashReturn).toBe(8.03);
     });
 
     it('should handle negative cash flow correctly', () => {
@@ -136,8 +137,34 @@ describe('@cqs/finance-logic Test Suite', () => {
       expect(result.totalMonthlyIncome).toBe(1500);
       expect(result.operatingExpenses).toBe(350);
       expect(result.netOperatingIncomeMonthly).toBe(1150);
-      expect(result.monthlyCashFlow).toBe(-650); // 1150 - 1800
+      expect(result.monthlyCashFlow).toBe(-650);
       expect(result.annualCashFlow).toBe(-7800);
+    });
+  });
+
+  describe('Portfolio Aggregation Engine', () => {
+    it('should calculate exact summary for default 3-property portfolio', () => {
+      const summary = calculatePortfolioSummary(defaultPortfolioProperties);
+
+      // Asset Value = 675,000 + 465,000 + 320,000 = 1,460,000
+      expect(summary.totalAssetValue).toBe(1460000);
+      // Mortgage Debt = 428,000 + 324,000 + 216,500 = 968,500
+      expect(summary.totalMortgageDebt).toBe(968500);
+      // Net Equity = 1,460,000 - 968,500 = 491,500
+      expect(summary.netRealEstateEquity).toBe(491500);
+      // Equity Share = 491,500 / 1,460,000 = ~33.7% -> 33.7%
+      expect(summary.equitySharePercent).toBe(33.7);
+      // Rent Income = 0 + 2,850 + 2,100 = 4,950
+      expect(summary.totalMonthlyIncome).toBe(4950);
+      // Mortgage P&I = 2,037 + 1,961 + 1,398 = 5,396
+      expect(summary.breakdown.mortgagePAndI).toBe(5396);
+    });
+
+    it('should handle empty portfolio safely', () => {
+      const summary = calculatePortfolioSummary([]);
+      expect(summary.totalAssetValue).toBe(0);
+      expect(summary.netRealEstateEquity).toBe(0);
+      expect(summary.portfolioCapRate).toBe(0);
     });
   });
 });

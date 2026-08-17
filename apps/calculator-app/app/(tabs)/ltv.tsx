@@ -5,10 +5,8 @@ import {
   View,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { Link } from 'expo-router';
 import { calculateLTV } from '@cqs/finance-logic';
 
 export default function LTVScreen() {
@@ -24,24 +22,7 @@ export default function LTVScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Navigation Tabs */}
-        <View style={styles.navRow}>
-          <Link href="/" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>Mortgage</Text>
-            </TouchableOpacity>
-          </Link>
-          <TouchableOpacity style={[styles.navBtn, styles.navBtnActive]}>
-            <Text style={styles.navBtnTextActive}>LTV Calc</Text>
-          </TouchableOpacity>
-          <Link href="/cash-flow" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>Cash Flow</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Highlight Result Card */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>LOAN-TO-VALUE RATIO (LTV)</Text>
@@ -66,17 +47,17 @@ export default function LTVScreen() {
           </View>
           <View style={styles.breakdownRow}>
             <Text style={styles.breakdownLabel}>Total Homeowner Equity ($)</Text>
-            <Text style={styles.breakdownValueBold}>${result.equityValue.toLocaleString()}</Text>
+            <Text style={styles.breakdownValueGold}>${result.equityValue.toLocaleString()}</Text>
           </View>
           <View style={[styles.breakdownRow, { borderBottomWidth: 0 }]}>
-            <Text style={styles.breakdownLabel}>Homeowner Equity (%)</Text>
-            <Text style={styles.breakdownValueBold}>{result.equityPercent}%</Text>
+            <Text style={styles.breakdownLabel}>Homeowner Equity Share (%)</Text>
+            <Text style={styles.breakdownValueGold}>{result.equityPercent}%</Text>
           </View>
         </View>
 
         {/* Inputs */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Values</Text>
+          <Text style={styles.sectionTitle}>Appraisal & Loan Inputs</Text>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Appraised Property Value ($)</Text>
             <TextInput
@@ -89,7 +70,7 @@ export default function LTVScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Loan Amount ($)</Text>
+            <Text style={styles.label}>Loan Principal Balance ($)</Text>
             <TextInput
               style={styles.input}
               value={loanAmount}
@@ -113,31 +94,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  navRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 8,
-  },
-  navBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  navBtnActive: {
-    backgroundColor: '#3B82F6',
-  },
-  navBtnText: {
-    color: '#94A3B8',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  navBtnTextActive: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-  },
   cardHighlight: {
     backgroundColor: '#1E293B',
     borderRadius: 16,
@@ -149,7 +105,7 @@ const styles = StyleSheet.create({
   },
   highlightLabel: {
     color: '#60A5FA',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
     marginBottom: 6,
@@ -210,8 +166,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  breakdownValueBold: {
-    color: '#38BDF8',
+  breakdownValueGold: {
+    color: '#FBBF24',
     fontSize: 15,
     fontWeight: '700',
   },

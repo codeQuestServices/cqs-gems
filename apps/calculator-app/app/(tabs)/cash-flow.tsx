@@ -5,10 +5,8 @@ import {
   View,
   TextInput,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { Link } from 'expo-router';
 import { calculateCashFlow } from '@cqs/finance-logic';
 
 export default function CashFlowScreen() {
@@ -53,24 +51,7 @@ export default function CashFlowScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Navigation Tabs */}
-        <View style={styles.navRow}>
-          <Link href="/" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>Mortgage</Text>
-            </TouchableOpacity>
-          </Link>
-          <Link href="/ltv" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>LTV Calc</Text>
-            </TouchableOpacity>
-          </Link>
-          <TouchableOpacity style={[styles.navBtn, styles.navBtnActive]}>
-            <Text style={styles.navBtnTextActive}>Cash Flow</Text>
-          </TouchableOpacity>
-        </View>
-
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Highlight Result Card */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>NET MONTHLY CASH FLOW</Text>
@@ -180,7 +161,7 @@ export default function CashFlowScreen() {
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.label}>Vacancy ($/mo)</Text>
+              <Text style={styles.label}>Vacancy Reserve ($/mo)</Text>
               <TextInput
                 style={styles.input}
                 value={vacancy}
@@ -203,7 +184,7 @@ export default function CashFlowScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Total Purchase Price ($)</Text>
+            <Text style={styles.label}>Purchase Price ($)</Text>
             <TextInput
               style={styles.input}
               value={purchasePrice}
@@ -238,31 +219,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  navRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 8,
-  },
-  navBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  navBtnActive: {
-    backgroundColor: '#3B82F6',
-  },
-  navBtnText: {
-    color: '#94A3B8',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  navBtnTextActive: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-  },
   cardHighlight: {
     backgroundColor: '#1E293B',
     borderRadius: 16,
@@ -274,7 +230,7 @@ const styles = StyleSheet.create({
   },
   highlightLabel: {
     color: '#60A5FA',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
     marginBottom: 6,
@@ -330,7 +286,7 @@ const styles = StyleSheet.create({
   breakdownRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 7,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
   },

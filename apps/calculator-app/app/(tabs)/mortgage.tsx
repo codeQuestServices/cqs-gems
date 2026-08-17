@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { Link } from 'expo-router';
 import { calculateMortgage } from '@cqs/finance-logic';
 
 export default function MortgageScreen() {
@@ -20,9 +19,17 @@ export default function MortgageScreen() {
   const [insurance, setInsurance] = useState('1200');
   const [hoa, setHoa] = useState('150');
 
+  const priceNum = parseFloat(homePrice) || 0;
+
+  // Preset helper for down payment chips
+  const setDownPaymentPercent = (percent: number) => {
+    const calculated = Math.round((priceNum * percent) / 100);
+    setDownPayment(calculated.toString());
+  };
+
   const result = useMemo(() => {
     return calculateMortgage({
-      homePrice: parseFloat(homePrice) || 0,
+      homePrice: priceNum,
       downPayment: parseFloat(downPayment) || 0,
       annualInterestRate: parseFloat(interestRate) || 0,
       loanTermYears: parseFloat(loanTerm) || 30,
@@ -34,25 +41,8 @@ export default function MortgageScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Navigation Tabs */}
-        <View style={styles.navRow}>
-          <TouchableOpacity style={[styles.navBtn, styles.navBtnActive]}>
-            <Text style={styles.navBtnTextActive}>Mortgage</Text>
-          </TouchableOpacity>
-          <Link href="/ltv" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>LTV Calc</Text>
-            </TouchableOpacity>
-          </Link>
-          <Link href="/cash-flow" asChild>
-            <TouchableOpacity style={styles.navBtn}>
-              <Text style={styles.navBtnText}>Cash Flow</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-
-        {/* Highlight Result Card */}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Total Payment Hero Card */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>TOTAL ESTIMATED MONTHLY PAYMENT</Text>
           <Text style={styles.highlightValue}>
@@ -63,7 +53,7 @@ export default function MortgageScreen() {
           </Text>
         </View>
 
-        {/* Payment Breakdown */}
+        {/* Breakdown Card */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Payment Breakdown</Text>
           <View style={styles.breakdownRow}>
@@ -87,12 +77,12 @@ export default function MortgageScreen() {
             <Text style={styles.breakdownValue}>${result.monthlyHOA.toLocaleString()}</Text>
           </View>
           <View style={[styles.breakdownRow, styles.breakdownTotalRow]}>
-            <Text style={styles.breakdownLabelBold}>Total Loan Interest</Text>
+            <Text style={styles.breakdownLabelBold}>Total Loan Lifetime Interest</Text>
             <Text style={styles.breakdownValueBold}>${result.totalInterestPaid.toLocaleString()}</Text>
           </View>
         </View>
 
-        {/* Inputs */}
+        {/* Interactive Parameter Controls */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Loan Parameters</Text>
           
@@ -107,8 +97,22 @@ export default function MortgageScreen() {
             />
           </View>
 
+          {/* Quick Down Payment Chips */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Down Payment ($)</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Down Payment ($)</Text>
+              <View style={styles.chipRow}>
+                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(5)}>
+                  <Text style={styles.chipText}>5%</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(10)}>
+                  <Text style={styles.chipText}>10%</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(20)}>
+                  <Text style={styles.chipText}>20%</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <TextInput
               style={styles.input}
               value={downPayment}
@@ -131,13 +135,24 @@ export default function MortgageScreen() {
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
               <Text style={styles.label}>Term (Years)</Text>
-              <TextInput
-                style={styles.input}
-                value={loanTerm}
-                onChangeText={setLoanTerm}
-                keyboardType="numeric"
-                placeholderTextColor="#64748B"
-              />
+              <View style={styles.termToggleRow}>
+                <TouchableOpacity
+                  style={[styles.termBtn, loanTerm === '15' && styles.termBtnActive]}
+                  onPress={() => setLoanTerm('15')}
+                >
+                  <Text style={[styles.termBtnText, loanTerm === '15' && styles.termBtnTextActive]}>
+                    15 Yr
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.termBtn, loanTerm === '30' && styles.termBtnActive]}
+                  onPress={() => setLoanTerm('30')}
+                >
+                  <Text style={[styles.termBtnText, loanTerm === '30' && styles.termBtnTextActive]}>
+                    30 Yr
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
 
@@ -164,7 +179,7 @@ export default function MortgageScreen() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Monthly HOA Fees ($)</Text>
+            <Text style={styles.label}>Monthly HOA Dues ($)</Text>
             <TextInput
               style={styles.input}
               value={hoa}
@@ -188,31 +203,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  navRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 8,
-  },
-  navBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  navBtnActive: {
-    backgroundColor: '#3B82F6',
-  },
-  navBtnText: {
-    color: '#94A3B8',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  navBtnTextActive: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-  },
   cardHighlight: {
     backgroundColor: '#1E293B',
     borderRadius: 16,
@@ -224,7 +214,7 @@ const styles = StyleSheet.create({
   },
   highlightLabel: {
     color: '#60A5FA',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
     marginBottom: 6,
@@ -256,7 +246,7 @@ const styles = StyleSheet.create({
   breakdownRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 7,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
   },
@@ -290,11 +280,60 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
   label: {
     color: '#94A3B8',
     fontSize: 13,
-    marginBottom: 6,
     fontWeight: '500',
+    marginBottom: 6,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  chip: {
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  chipText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  termToggleRow: {
+    flexDirection: 'row',
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    overflow: 'hidden',
+    height: 44,
+  },
+  termBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  termBtnActive: {
+    backgroundColor: '#3B82F6',
+  },
+  termBtnText: {
+    color: '#94A3B8',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  termBtnTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   input: {
     backgroundColor: '#0F172A',
