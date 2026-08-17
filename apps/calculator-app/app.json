@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "CQS Calculator",
-    "slug": "calculator-app",
+    "name": "PropGem",
+    "slug": "propgem",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "scheme": "cqs-calc",
+    "scheme": "propgem",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cqs.calculator"
+      "bundleIdentifier": "com.cqs.propgem"
     },
     "android": {
-      "package": "com.cqs.calculator"
+      "package": "com.cqs.propgem"
     },
     "web": {
       "bundler": "metro",

@@ -4,7 +4,7 @@
 `cqs-gems` is a cross-platform mobile application monorepo ecosystem targeting real estate finance, analytics, and portfolio dashboard applications.
 
 ## Initial App
-- **calculator-app**: Homeownership & Payment Calculator (Mortgage math, Loan-To-Value (LTV), cash flow, amortizations).
+- **PropGem (`apps/calculator-app`)**: Real Estate Investment & Expense Dashboard + Calculators (Mortgage, LTV, Cash Flow, Amortizations).
 
 ## Future Roadmap
 - Scaling to a complex real estate portfolio dashboard, multi-property management, and financial modeling tools under a unified domain.

@@ -78,7 +78,7 @@ yarn lint
 
 | App Name | Description | Routing |
 |---|---|---|
-| **calculator-app** | Homeownership & Payment Calculator (Mortgage, LTV, Cash Flow) | Expo Router (file-based) |
+| **PropGem (`calculator-app`)** | Native Real Estate Investment & Expense Dashboard + Calculators (Mortgage, LTV, Cash Flow) | Expo Router (Bottom Tabs) |
 
 ---
 
