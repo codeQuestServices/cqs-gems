@@ -8,7 +8,10 @@
     "scheme": "propgem",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cqs.propgem"
+      "bundleIdentifier": "com.cqs.propgem",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.cqs.propgem"
@@ -29,6 +32,12 @@
       },
       "router": {}
     },
-    "owner": "code-quest-services"
+    "owner": "code-quest-services",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e220ab3d-2a51-4c7f-9369-32b071db644f"
+    }
   }
 }
