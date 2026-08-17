@@ -2,7 +2,7 @@
 
 ## Status Summary
 - **Workspace Architecture**: Completed (Turborepo + Yarn Workspaces)
-- **calculator-app (PropGem)**: Upgraded to Full Dashboard + Calculators (`apps/calculator-app`)
+- **PropGem App**: Full Dashboard + Calculators (`apps/propgem`)
 - **cqs-finance-logic**: Extended with Portfolio Aggregates (`packages/cqs-finance-logic`)
 - **CI/CD Workflows**: Configured (`.github/workflows/main.yml`)
 

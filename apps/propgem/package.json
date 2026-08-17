@@ -1,5 +1,5 @@
 {
-  "name": "calculator-app",
+  "name": "propgem",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
@@ -8,8 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "echo \"calculator-app: ready for EAS build\"",
-    "lint": "echo \"calculator-app: lint pass\"",
+    "build": "echo \"propgem: ready for EAS build\"",
+    "lint": "echo \"propgem: lint pass\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

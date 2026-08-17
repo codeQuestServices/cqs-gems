@@ -12,22 +12,22 @@ cqs-gems/
 │   └── workflows/
 │       └── main.yml                  # CI/CD: lint, test, typecheck & EAS build preview
 ├── apps/
-│   └── calculator-app/               # Expo app with Expo Router
+│   └── propgem/                      # PropGem Expo App with Expo Router (Bottom Tabs)
 │       ├── app/
-│       │   ├── _layout.tsx           # Dark theme Stack layout
-│       │   ├── index.tsx             # Mortgage & monthly payment calculator
-│       │   ├── ltv.tsx               # Loan-To-Value & PMI analysis
-│       │   └── cash-flow.tsx         # Real estate cash flow & Cap Rate engine
-│       ├── app.json                  # Expo config with typed routes & scheme
+│       │   ├── (tabs)/               # Bottom Tab routes (Portfolio, Mortgage, LTV, Cash Flow)
+│       │   ├── _layout.tsx           # Dark theme Stack layout & Context Provider
+│       │   └── add-property.tsx      # Add property modal sheet
+│       ├── app.json                  # Expo config with scheme & bundle identifiers
 │       ├── eas.json                  # EAS build configurations (dev, preview, prod)
 │       └── metro.config.js           # Monorepo-aware Metro configuration
 ├── packages/
 │   └── cqs-finance-logic/            # Pure TypeScript financial calculation engine
 │       └── src/
-│           ├── types.ts              # Financial domain types
+│           ├── types.ts              # Financial domain types & portfolio models
 │           ├── mortgage.ts           # P&I, amortization schedules, taxes, insurance
 │           ├── ltv.ts                # LTV calculations & PMI requirements
 │           ├── cashFlow.ts           # NOI, Cap Rate, Cash-on-Cash return
+│           ├── portfolio.ts          # Multi-property portfolio summary aggregator
 │           └── index.ts              # Public library exports
 ├── .agents/memory/                   # Autonomous context tracking bank
 ├── package.json                      # Monorepo root with Yarn Workspaces
@@ -54,10 +54,10 @@ yarn install
 # Run all workspaces in dev mode
 yarn dev
 
-# Run only the calculator app
-yarn dev --filter=calculator-app
+# Run only the PropGem app
+yarn dev --filter=propgem
 # or
-cd apps/calculator-app && yarn start
+yarn workspace propgem start
 ```
 
 ### Validation
@@ -78,7 +78,7 @@ yarn lint
 
 | App Name | Description | Routing |
 |---|---|---|
-| **PropGem (`calculator-app`)** | Native Real Estate Investment & Expense Dashboard + Calculators (Mortgage, LTV, Cash Flow) | Expo Router (Bottom Tabs) |
+| **PropGem (`apps/propgem`)** | Native Real Estate Investment & Expense Dashboard + Calculators (Mortgage, LTV, Cash Flow) | Expo Router (Bottom Tabs) |
 
 ---
 

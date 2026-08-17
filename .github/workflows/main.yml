@@ -59,9 +59,9 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 📱 Trigger EAS Build for calculator-app
+      - name: 📱 Trigger EAS Build for PropGem
         if: env.EXPO_TOKEN != ''
-        working-directory: apps/calculator-app
+        working-directory: apps/propgem
         run: eas build --platform all --profile preview --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

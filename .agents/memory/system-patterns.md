@@ -10,7 +10,7 @@
   │   └── workflows/
   │       └── main.yml        # CI/CD: lint, test, typecheck & EAS build preview/production
   ├── apps/
-  │   └── calculator-app/     # Expo application with Expo Router
+  │   └── propgem/            # PropGem Expo application with Expo Router (Bottom Tabs)
   ├── packages/
   │   └── cqs-finance-logic/  # Shared TypeScript financial calculation engines (LTV, cash flow, amortization)
   ├── package.json            # Root workspace configuration
