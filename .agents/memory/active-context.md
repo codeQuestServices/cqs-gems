@@ -1,5 +1,6 @@
 ## Immediate State
-- Created comprehensive Feature Specification document in `docs/FEATURE_SPEC.md` covering UI/UX foundations, homeowner calculators, and investor portfolio metrics.
+- Updated GitHub Actions workflow (`.github/workflows/main.yml`) EAS Build step to target Android exclusively via `eas build --profile preview --platform android --non-interactive`, removing all iOS build and credential overhead.
+- Verified `eas.json` Android preview configuration generates direct APKs (`"buildType": "apk"`).
 - Integrated `react-native-safe-area-context` and custom `useSafeInsets` dynamic hook across layouts, bottom tabs, sticky buttons, and modal footers for seamless Android soft-keys / iOS home indicators support.
 - Built hybrid slider/text numerical input component (`SliderInput`) with step buttons and `expo-haptics` tactile ticks.
 - Created `StackedOutflowBar` component providing interactive horizontal payment composition visualization (P&I, Taxes, Insurance, HOA, PMI).
