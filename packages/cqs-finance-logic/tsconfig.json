@@ -3,7 +3,10 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "noEmit": false,
+    "declaration": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/__tests__/*"]
 }

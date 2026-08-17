@@ -37,10 +37,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onDelete }
           ]}
         >
           <Text
-            style={[
-              styles.typeBadgeText,
-              isPrimary ? styles.primaryBadgeText : styles.rentalBadgeText,
-            ]}
+            style={isPrimary ? styles.primaryBadgeText : styles.rentalBadgeText}
           >
             {isPrimary ? 'LIVE IN' : 'RENTAL'}
           </Text>
