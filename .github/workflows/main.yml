@@ -17,7 +17,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'yarn'
 
       - name: 📦 Install dependencies
@@ -47,21 +47,21 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'yarn'
 
       - name: 📦 Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: 🚀 Setup Expo and EAS
+      - name: 🚀 Setup Expo and EAS Authentication
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 📱 Trigger EAS Build for PropGem
+      - name: 📱 Trigger EAS Cloud Build for PropGem
         if: env.EXPO_TOKEN != ''
         working-directory: apps/propgem
-        run: eas build --platform all --profile preview --non-interactive
+        run: eas build --profile preview --platform all --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

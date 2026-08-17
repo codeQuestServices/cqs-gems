@@ -15,9 +15,12 @@
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
+    "prettier": "^3.2.5",
     "turbo": "^2.4.0",
-    "typescript": "~5.3.3",
-    "prettier": "^3.2.5"
+    "typescript": "~5.3.3"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "dependencies": {
+    "eas-cli": "^22.0.0"
+  }
 }
