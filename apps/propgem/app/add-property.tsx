@@ -6,15 +6,17 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePortfolio } from '../src/context/PortfolioContext';
 import { PropertyType } from '@cqs/finance-logic';
+import { useSafeInsets } from '../src/hooks/useSafeInsets';
+import { triggerLightImpact, triggerSuccessHaptic } from '../src/utils/haptics';
 
 export default function AddPropertyModal() {
   const router = useRouter();
   const { addProperty } = usePortfolio();
+  const { modalFooterPadding } = useSafeInsets();
 
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
@@ -32,6 +34,7 @@ export default function AddPropertyModal() {
   const handleSave = () => {
     if (!name.trim()) return;
 
+    triggerSuccessHaptic();
     addProperty({
       name: name.trim(),
       address: address.trim() || 'Unspecified Address',
@@ -52,9 +55,20 @@ export default function AddPropertyModal() {
     router.back();
   };
 
+  const handleSelectType = (type: PropertyType) => {
+    triggerLightImpact();
+    setPropertyType(type);
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: modalFooterPadding },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Property Identity</Text>
           
@@ -63,7 +77,7 @@ export default function AddPropertyModal() {
             <TextInput
               style={styles.input}
               placeholder="e.g. Henderson Rental Home"
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#71717A"
               value={name}
               onChangeText={setName}
             />
@@ -74,7 +88,7 @@ export default function AddPropertyModal() {
             <TextInput
               style={styles.input}
               placeholder="e.g. 123 Main St, Las Vegas, NV"
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#71717A"
               value={address}
               onChangeText={setAddress}
             />
@@ -89,7 +103,7 @@ export default function AddPropertyModal() {
                   styles.typeBtn,
                   propertyType === 'PRIMARY' && styles.typeBtnActivePrimary,
                 ]}
-                onPress={() => setPropertyType('PRIMARY')}
+                onPress={() => handleSelectType('PRIMARY')}
               >
                 <Text
                   style={[
@@ -97,7 +111,7 @@ export default function AddPropertyModal() {
                     propertyType === 'PRIMARY' && styles.typeBtnTextActive,
                   ]}
                 >
-                  Owner Occupied (Live In)
+                  Owner Occupied (Primary)
                 </Text>
               </TouchableOpacity>
 
@@ -106,7 +120,7 @@ export default function AddPropertyModal() {
                   styles.typeBtn,
                   propertyType === 'RENTAL' && styles.typeBtnActiveRental,
                 ]}
-                onPress={() => setPropertyType('RENTAL')}
+                onPress={() => handleSelectType('RENTAL')}
               >
                 <Text
                   style={[
@@ -132,6 +146,7 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={marketValue}
                 onChangeText={setMarketValue}
+                placeholderTextColor="#71717A"
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
@@ -141,6 +156,7 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={loanBalance}
                 onChangeText={setLoanBalance}
+                placeholderTextColor="#71717A"
               />
             </View>
           </View>
@@ -152,6 +168,7 @@ export default function AddPropertyModal() {
               keyboardType="numeric"
               value={monthlyMortgagePAndI}
               onChangeText={setMonthlyMortgagePAndI}
+              placeholderTextColor="#71717A"
             />
           </View>
         </View>
@@ -168,6 +185,7 @@ export default function AddPropertyModal() {
                   keyboardType="numeric"
                   value={monthlyRentIncome}
                   onChangeText={setMonthlyRentIncome}
+                  placeholderTextColor="#71717A"
                 />
               </View>
 
@@ -176,7 +194,7 @@ export default function AddPropertyModal() {
                 <TextInput
                   style={styles.input}
                   placeholder="e.g. John Doe"
-                  placeholderTextColor="#64748B"
+                  placeholderTextColor="#71717A"
                   value={tenantName}
                   onChangeText={setTenantName}
                 />
@@ -192,6 +210,7 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={monthlyPropertyTax}
                 onChangeText={setMonthlyPropertyTax}
+                placeholderTextColor="#71717A"
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
@@ -201,6 +220,7 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={monthlyInsurance}
                 onChangeText={setMonthlyInsurance}
+                placeholderTextColor="#71717A"
               />
             </View>
           </View>
@@ -213,6 +233,7 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={monthlyHOA}
                 onChangeText={setMonthlyHOA}
+                placeholderTextColor="#71717A"
               />
             </View>
             <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
@@ -222,44 +243,45 @@ export default function AddPropertyModal() {
                 keyboardType="numeric"
                 value={monthlyMaintenance}
                 onChangeText={setMonthlyMaintenance}
+                placeholderTextColor="#71717A"
               />
             </View>
           </View>
         </View>
 
-        {/* Action Button */}
+        {/* Sticky Action Button */}
         <TouchableOpacity
           style={[styles.saveBtn, !name.trim() && styles.saveBtnDisabled]}
           onPress={handleSave}
           disabled={!name.trim()}
+          activeOpacity={0.8}
         >
-          <Text style={styles.saveBtnText}>Save Property to Portfolio</Text>
+          <Text style={styles.saveBtnText}>Save Asset to Portfolio</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090D16',
+    backgroundColor: '#09090B',
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
   },
   card: {
-    backgroundColor: '#131D2F',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
   },
   sectionTitle: {
-    color: '#F8FAFC',
-    fontSize: 16,
+    color: '#FAFAFA',
+    fontSize: 15,
     fontWeight: '700',
     marginBottom: 14,
   },
@@ -270,17 +292,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   label: {
-    color: '#94A3B8',
+    color: '#D4D4D8',
     fontSize: 13,
     fontWeight: '500',
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#09090B',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#3F3F46',
     borderRadius: 8,
-    color: '#FFFFFF',
+    color: '#FAFAFA',
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
@@ -294,30 +316,30 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 8,
     borderRadius: 8,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#09090B',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272A',
     alignItems: 'center',
   },
   typeBtnActivePrimary: {
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderColor: '#3B82F6',
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    borderColor: '#38BDF8',
   },
   typeBtnActiveRental: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderColor: '#10B981',
   },
   typeBtnText: {
-    color: '#94A3B8',
+    color: '#71717A',
     fontSize: 12,
     fontWeight: '600',
   },
   typeBtnTextActive: {
-    color: '#FFFFFF',
+    color: '#FAFAFA',
     fontWeight: '700',
   },
   saveBtn: {
-    backgroundColor: '#EAB308',
+    backgroundColor: '#F59E0B',
     paddingVertical: 15,
     borderRadius: 12,
     alignItems: 'center',
@@ -327,7 +349,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   saveBtnText: {
-    color: '#090D16',
+    color: '#09090B',
     fontSize: 16,
     fontWeight: '800',
   },

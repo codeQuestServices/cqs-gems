@@ -55,6 +55,7 @@ export interface AmortizationPeriod {
 export interface LTVInput {
   loanAmount: number;
   appraisedValue: number;
+  annualPMIRatePercent?: number;
 }
 
 /**
@@ -65,6 +66,8 @@ export interface LTVResult {
   requiresPMI: boolean;
   equityValue: number;
   equityPercent: number;
+  estimatedMonthlyPMI: number;
+  amountNeededToReach80LTV: number;
 }
 
 /**

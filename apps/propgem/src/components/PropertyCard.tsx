@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PortfolioProperty } from '@cqs/finance-logic';
 
 interface PropertyCardProps {
@@ -7,7 +7,7 @@ interface PropertyCardProps {
   onDelete?: (id: string) => void;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onDelete }) => {
+export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const equityNet = Math.max(0, property.marketValue - property.loanBalance);
   const equityPercent = property.marketValue > 0 ? Math.round((equityNet / property.marketValue) * 100) : 0;
 
@@ -115,11 +115,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onDelete }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#131D2F',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
     marginBottom: 16,
   },
   headerRow: {
@@ -133,13 +133,13 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   nameText: {
-    color: '#F8FAFC',
+    color: '#FAFAFA',
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 3,
   },
   addressText: {
-    color: '#94A3B8',
+    color: '#A1A1AA',
     fontSize: 12,
   },
   typeBadge: {
@@ -148,12 +148,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   primaryBadge: {
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.4)',
+    borderColor: 'rgba(56, 189, 248, 0.4)',
   },
   primaryBadgeText: {
-    color: '#60A5FA',
+    color: '#38BDF8',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -172,12 +172,12 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#09090B',
     borderRadius: 12,
     padding: 10,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
   },
   statBox: {
     width: '50%',
@@ -185,13 +185,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   statLabel: {
-    color: '#64748B',
+    color: '#71717A',
     fontSize: 11,
     fontWeight: '500',
     marginBottom: 2,
   },
   statValue: {
-    color: '#F1F5F9',
+    color: '#FAFAFA',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -204,18 +204,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: '#09090B',
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
   },
   rightBannerCol: {
     alignItems: 'flex-end',
   },
   bannerSubLabel: {
-    color: '#64748B',
+    color: '#71717A',
     fontSize: 10,
     fontWeight: '600',
     marginBottom: 2,
@@ -241,11 +241,11 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   footerDate: {
-    color: '#64748B',
+    color: '#71717A',
     fontSize: 10,
   },
   tenantText: {
-    color: '#94A3B8',
+    color: '#A1A1AA',
     fontSize: 10,
     fontWeight: '600',
   },

@@ -1,12 +1,15 @@
+const path = require('path');
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  rootDir: '.',
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        tsconfig: 'tsconfig.json',
+        tsconfig: path.resolve(__dirname, 'tsconfig.json'),
       },
     ],
   },

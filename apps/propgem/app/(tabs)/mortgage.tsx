@@ -3,320 +3,370 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
-import { calculateMortgage } from '@cqs/finance-logic';
+import { calculateMortgage, calculateLTV, generateAmortizationSchedule } from '@cqs/finance-logic';
+import { useSafeInsets } from '../../src/hooks/useSafeInsets';
+import { SliderInput } from '../../src/components/SliderInput';
+import { StackedOutflowBar } from '../../src/components/StackedOutflowBar';
+import { PmiIndicator } from '../../src/components/PmiIndicator';
+import { triggerLightImpact, triggerSelectionHaptic } from '../../src/utils/haptics';
 
 export default function MortgageScreen() {
-  const [homePrice, setHomePrice] = useState('450000');
-  const [downPayment, setDownPayment] = useState('90000');
-  const [interestRate, setInterestRate] = useState('6.5');
-  const [loanTerm, setLoanTerm] = useState('30');
-  const [propertyTax, setPropertyTax] = useState('4200');
-  const [insurance, setInsurance] = useState('1200');
-  const [hoa, setHoa] = useState('150');
+  const { screenBottomPadding } = useSafeInsets();
 
-  const priceNum = parseFloat(homePrice) || 0;
+  const [homePrice, setHomePrice] = useState(450000);
+  const [downPayment, setDownPayment] = useState(90000);
+  const [interestRate, setInterestRate] = useState(6.5);
+  const [loanTerm, setLoanTerm] = useState(30);
+  const [propertyTax, setPropertyTax] = useState(4200);
+  const [insurance, setInsurance] = useState(1200);
+  const [hoa, setHoa] = useState(150);
+  const [showSchedule, setShowSchedule] = useState(false);
 
-  // Preset helper for down payment chips
   const setDownPaymentPercent = (percent: number) => {
-    const calculated = Math.round((priceNum * percent) / 100);
-    setDownPayment(calculated.toString());
+    triggerLightImpact();
+    const calculated = Math.round((homePrice * percent) / 100);
+    setDownPayment(calculated);
+  };
+
+  const handleTermChange = (term: number) => {
+    triggerLightImpact();
+    setLoanTerm(term);
   };
 
   const result = useMemo(() => {
     return calculateMortgage({
-      homePrice: priceNum,
-      downPayment: parseFloat(downPayment) || 0,
-      annualInterestRate: parseFloat(interestRate) || 0,
-      loanTermYears: parseFloat(loanTerm) || 30,
-      annualPropertyTax: parseFloat(propertyTax) || 0,
-      annualHomeownersInsurance: parseFloat(insurance) || 0,
-      monthlyHOA: parseFloat(hoa) || 0,
+      homePrice,
+      downPayment,
+      annualInterestRate: interestRate,
+      loanTermYears: loanTerm,
+      annualPropertyTax: propertyTax,
+      annualHomeownersInsurance: insurance,
+      monthlyHOA: hoa,
     });
   }, [homePrice, downPayment, interestRate, loanTerm, propertyTax, insurance, hoa]);
 
+  const ltvResult = useMemo(() => {
+    return calculateLTV({
+      loanAmount: result.loanAmount,
+      appraisedValue: homePrice,
+    });
+  }, [result.loanAmount, homePrice]);
+
+  const totalMonthlyWithPmi = result.totalMonthlyPayment + (ltvResult.requiresPMI ? ltvResult.estimatedMonthlyPMI : 0);
+
+  const schedule = useMemo(() => {
+    if (!showSchedule) return [];
+    return generateAmortizationSchedule(
+      {
+        homePrice,
+        downPayment,
+        annualInterestRate: interestRate,
+        loanTermYears: loanTerm,
+      },
+      12 // First 12 months preview
+    );
+  }, [showSchedule, homePrice, downPayment, interestRate, loanTerm]);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: screenBottomPadding },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Total Payment Hero Card */}
         <View style={styles.cardHighlight}>
-          <Text style={styles.highlightLabel}>TOTAL ESTIMATED MONTHLY PAYMENT</Text>
+          <Text style={styles.highlightLabel}>ESTIMATED TOTAL MONTHLY PAYMENT</Text>
           <Text style={styles.highlightValue}>
-            ${result.totalMonthlyPayment.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${totalMonthlyWithPmi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           <Text style={styles.highlightSub}>
-            Principal & Interest: ${result.monthlyPrincipalAndInterest.toLocaleString()} / mo
+            P&I: ${result.monthlyPrincipalAndInterest.toLocaleString()} / mo | Lifetime Interest: ${result.totalInterestPaid.toLocaleString()}
           </Text>
         </View>
 
-        {/* Breakdown Card */}
+        {/* PMI Auto Detection Alert */}
+        <PmiIndicator loanAmount={result.loanAmount} homePrice={homePrice} />
+
+        {/* Stacked Outflow Bar */}
+        <StackedOutflowBar
+          principalAndInterest={result.monthlyPrincipalAndInterest}
+          propertyTax={result.monthlyPropertyTax}
+          insurance={result.monthlyInsurance}
+          hoa={result.monthlyHOA}
+          pmi={ltvResult.requiresPMI ? ltvResult.estimatedMonthlyPMI : 0}
+          totalMonthlyPayment={totalMonthlyWithPmi}
+        />
+
+        {/* Interactive Loan Parameters */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Payment Breakdown</Text>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Loan Amount</Text>
-            <Text style={styles.breakdownValue}>${result.loanAmount.toLocaleString()}</Text>
+          <Text style={styles.sectionTitle}>Mortgage & Down Payment</Text>
+          
+          <SliderInput
+            label="Home Purchase Price"
+            value={homePrice}
+            onChange={(val) => {
+              setHomePrice(val);
+              const ratio = homePrice > 0 ? downPayment / homePrice : 0.2;
+              setDownPayment(Math.round(val * ratio));
+            }}
+            min={50000}
+            max={2500000}
+            step={5000}
+            prefix="$"
+            accentColor="#F59E0B"
+          />
+
+          <View style={styles.downPaymentHeaderRow}>
+            <Text style={styles.subLabel}>Down Payment ({result.downPaymentPercent}%)</Text>
+            <View style={styles.chipRow}>
+              {[5, 10, 20, 25].map((pct) => (
+                <TouchableOpacity
+                  key={pct}
+                  style={[
+                    styles.chip,
+                    Math.abs(result.downPaymentPercent - pct) < 0.5 && styles.chipActive,
+                  ]}
+                  onPress={() => setDownPaymentPercent(pct)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      Math.abs(result.downPaymentPercent - pct) < 0.5 && styles.chipTextActive,
+                    ]}
+                  >
+                    {pct}%
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Down Payment ({result.downPaymentPercent}%)</Text>
-            <Text style={styles.breakdownValue}>${(parseFloat(downPayment) || 0).toLocaleString()}</Text>
-          </View>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Monthly Property Tax</Text>
-            <Text style={styles.breakdownValue}>${result.monthlyPropertyTax.toLocaleString()}</Text>
-          </View>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Monthly Home Insurance</Text>
-            <Text style={styles.breakdownValue}>${result.monthlyInsurance.toLocaleString()}</Text>
-          </View>
-          <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Monthly HOA</Text>
-            <Text style={styles.breakdownValue}>${result.monthlyHOA.toLocaleString()}</Text>
-          </View>
-          <View style={[styles.breakdownRow, styles.breakdownTotalRow]}>
-            <Text style={styles.breakdownLabelBold}>Total Loan Lifetime Interest</Text>
-            <Text style={styles.breakdownValueBold}>${result.totalInterestPaid.toLocaleString()}</Text>
+
+          <SliderInput
+            label="Down Payment Amount"
+            value={downPayment}
+            onChange={setDownPayment}
+            min={0}
+            max={homePrice}
+            step={1000}
+            prefix="$"
+            accentColor="#38BDF8"
+          />
+
+          <SliderInput
+            label="Interest Rate"
+            value={interestRate}
+            onChange={setInterestRate}
+            min={1.0}
+            max={15.0}
+            step={0.125}
+            suffix="%"
+            accentColor="#818CF8"
+          />
+
+          <View style={styles.termContainer}>
+            <Text style={styles.subLabel}>Loan Duration</Text>
+            <View style={styles.termToggleRow}>
+              <TouchableOpacity
+                style={[styles.termBtn, loanTerm === 15 && styles.termBtnActive]}
+                onPress={() => handleTermChange(15)}
+              >
+                <Text style={[styles.termBtnText, loanTerm === 15 && styles.termBtnTextActive]}>
+                  15-Year Fixed
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.termBtn, loanTerm === 30 && styles.termBtnActive]}
+                onPress={() => handleTermChange(30)}
+              >
+                <Text style={[styles.termBtnText, loanTerm === 30 && styles.termBtnTextActive]}>
+                  30-Year Fixed
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
-        {/* Interactive Parameter Controls */}
+        {/* Taxes & Escrows */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Loan Parameters</Text>
-          
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Home Purchase Price ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={homePrice}
-              onChangeText={setHomePrice}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
+          <Text style={styles.sectionTitle}>Escrows & Property Fees</Text>
 
-          {/* Quick Down Payment Chips */}
-          <View style={styles.inputGroup}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>Down Payment ($)</Text>
-              <View style={styles.chipRow}>
-                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(5)}>
-                  <Text style={styles.chipText}>5%</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(10)}>
-                  <Text style={styles.chipText}>10%</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.chip} onPress={() => setDownPaymentPercent(20)}>
-                  <Text style={styles.chipText}>20%</Text>
-                </TouchableOpacity>
+          <SliderInput
+            label="Annual Property Tax"
+            value={propertyTax}
+            onChange={setPropertyTax}
+            min={0}
+            max={25000}
+            step={100}
+            prefix="$"
+            helperText={`$${Math.round(propertyTax / 12)}/mo`}
+            accentColor="#F59E0B"
+          />
+
+          <SliderInput
+            label="Annual Homeowners Insurance"
+            value={insurance}
+            onChange={setInsurance}
+            min={0}
+            max={10000}
+            step={50}
+            prefix="$"
+            helperText={`$${Math.round(insurance / 12)}/mo`}
+            accentColor="#818CF8"
+          />
+
+          <SliderInput
+            label="Monthly HOA Dues"
+            value={hoa}
+            onChange={setHoa}
+            min={0}
+            max={2000}
+            step={25}
+            prefix="$"
+            suffix="/mo"
+            accentColor="#A78BFA"
+          />
+        </View>
+
+        {/* Amortization Schedule Preview */}
+        <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.scheduleToggleRow}
+            onPress={() => {
+              triggerSelectionHaptic();
+              setShowSchedule(!showSchedule);
+            }}
+          >
+            <Text style={styles.sectionTitle}>Amortization Schedule (Year 1)</Text>
+            <Text style={styles.scheduleToggleText}>{showSchedule ? 'Hide' : 'Show Preview'}</Text>
+          </TouchableOpacity>
+
+          {showSchedule && (
+            <View style={styles.scheduleTable}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.colHeader, { flex: 0.8 }]}>Mo</Text>
+                <Text style={[styles.colHeader, { flex: 1.2 }]}>Principal</Text>
+                <Text style={[styles.colHeader, { flex: 1.2 }]}>Interest</Text>
+                <Text style={[styles.colHeader, { flex: 1.4 }]}>Balance</Text>
               </View>
+
+              {schedule.map((row) => (
+                <View key={row.month} style={styles.tableRow}>
+                  <Text style={[styles.colCell, { flex: 0.8 }]}>{row.month}</Text>
+                  <Text style={[styles.colCellGreen, { flex: 1.2 }]}>${row.principalPayment.toLocaleString()}</Text>
+                  <Text style={[styles.colCell, { flex: 1.2 }]}>${row.interestPayment.toLocaleString()}</Text>
+                  <Text style={[styles.colCellBold, { flex: 1.4 }]}>${row.remainingBalance.toLocaleString()}</Text>
+                </View>
+              ))}
             </View>
-            <TextInput
-              style={styles.input}
-              value={downPayment}
-              onChangeText={setDownPayment}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
-
-          <View style={styles.inputRow}>
-            <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.label}>Interest Rate (%)</Text>
-              <TextInput
-                style={styles.input}
-                value={interestRate}
-                onChangeText={setInterestRate}
-                keyboardType="numeric"
-                placeholderTextColor="#64748B"
-              />
-            </View>
-            <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.label}>Term (Years)</Text>
-              <View style={styles.termToggleRow}>
-                <TouchableOpacity
-                  style={[styles.termBtn, loanTerm === '15' && styles.termBtnActive]}
-                  onPress={() => setLoanTerm('15')}
-                >
-                  <Text style={[styles.termBtnText, loanTerm === '15' && styles.termBtnTextActive]}>
-                    15 Yr
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.termBtn, loanTerm === '30' && styles.termBtnActive]}
-                  onPress={() => setLoanTerm('30')}
-                >
-                  <Text style={[styles.termBtnText, loanTerm === '30' && styles.termBtnTextActive]}>
-                    30 Yr
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Annual Property Tax ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={propertyTax}
-              onChangeText={setPropertyTax}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Annual Homeowners Insurance ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={insurance}
-              onChangeText={setInsurance}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Monthly HOA Dues ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={hoa}
-              onChangeText={setHoa}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
+          )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090D16',
+    backgroundColor: '#09090B',
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
   },
   cardHighlight: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272A',
     alignItems: 'center',
   },
   highlightLabel: {
-    color: '#60A5FA',
+    color: '#38BDF8',
     fontSize: 11,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     marginBottom: 6,
   },
   highlightValue: {
-    color: '#F8FAFC',
+    color: '#FAFAFA',
     fontSize: 34,
-    fontWeight: '800',
+    fontWeight: '900',
     marginBottom: 6,
   },
   highlightSub: {
-    color: '#94A3B8',
-    fontSize: 13,
+    color: '#A1A1AA',
+    fontSize: 12,
+    textAlign: 'center',
   },
   card: {
-    backgroundColor: '#131D2F',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
   },
   sectionTitle: {
-    color: '#F8FAFC',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 14,
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
-  },
-  breakdownTotalRow: {
-    marginTop: 8,
-    borderBottomWidth: 0,
-    paddingTop: 10,
-  },
-  breakdownLabel: {
-    color: '#94A3B8',
-    fontSize: 14,
-  },
-  breakdownValue: {
-    color: '#F1F5F9',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  breakdownLabelBold: {
-    color: '#E2E8F0',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  breakdownValueBold: {
-    color: '#38BDF8',
+    color: '#FAFAFA',
     fontSize: 15,
     fontWeight: '700',
-  },
-  inputGroup: {
     marginBottom: 14,
   },
-  inputRow: {
-    flexDirection: 'row',
+  subLabel: {
+    color: '#D4D4D8',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
   },
-  labelRow: {
+  downPaymentHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
-  },
-  label: {
-    color: '#94A3B8',
-    fontSize: 13,
-    fontWeight: '500',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   chipRow: {
     flexDirection: 'row',
     gap: 6,
   },
   chip: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#27272A',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#3F3F46',
+  },
+  chipActive: {
+    backgroundColor: '#38BDF8',
+    borderColor: '#38BDF8',
   },
   chipText: {
-    color: '#38BDF8',
+    color: '#A1A1AA',
     fontSize: 11,
     fontWeight: '700',
   },
+  chipTextActive: {
+    color: '#09090B',
+  },
+  termContainer: {
+    marginBottom: 14,
+  },
   termToggleRow: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
+    backgroundColor: '#09090B',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272A',
     overflow: 'hidden',
-    height: 44,
+    height: 42,
   },
   termBtn: {
     flex: 1,
@@ -327,7 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
   },
   termBtnText: {
-    color: '#94A3B8',
+    color: '#71717A',
     fontWeight: '600',
     fontSize: 13,
   },
@@ -335,14 +385,54 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
   },
-  input: {
-    backgroundColor: '#0F172A',
+  scheduleToggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scheduleToggleText: {
+    color: '#38BDF8',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  scheduleTable: {
+    marginTop: 10,
+    backgroundColor: '#09090B',
+    borderRadius: 10,
+    padding: 12,
     borderWidth: 1,
-    borderColor: '#334155',
-    borderRadius: 8,
-    color: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
+    borderColor: '#27272A',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#27272A',
+    paddingBottom: 8,
+    marginBottom: 6,
+  },
+  colHeader: {
+    color: '#71717A',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#18181B',
+  },
+  colCell: {
+    color: '#A1A1AA',
+    fontSize: 12,
+  },
+  colCellGreen: {
+    color: '#34D399',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  colCellBold: {
+    color: '#FAFAFA',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

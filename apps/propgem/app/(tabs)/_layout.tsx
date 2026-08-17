@@ -1,38 +1,49 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
+import { useSafeInsets } from '../../src/hooks/useSafeInsets';
+import { triggerSelectionHaptic } from '../../src/utils/haptics';
 
 export default function TabLayout() {
+  const { tabBarHeight, tabBarPaddingBottom } = useSafeInsets();
+
   return (
     <Tabs
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0F172A',
+          backgroundColor: '#09090B',
+          borderBottomColor: '#27272A',
+          borderBottomWidth: 1,
         },
-        headerTintColor: '#F8FAFC',
+        headerTintColor: '#FAFAFA',
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: '700',
           fontSize: 17,
         },
         tabBarStyle: {
-          backgroundColor: '#0F172A',
-          borderTopColor: '#1E293B',
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          backgroundColor: '#09090B',
+          borderTopColor: '#27272A',
+          borderTopWidth: 1,
+          height: tabBarHeight,
+          paddingBottom: tabBarPaddingBottom,
           paddingTop: 8,
         },
         tabBarActiveTintColor: '#38BDF8',
-        tabBarInactiveTintColor: '#64748B',
+        tabBarInactiveTintColor: '#71717A',
+      }}
+      screenListeners={{
+        tabPress: () => {
+          triggerSelectionHaptic();
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Portfolio',
-          headerTitle: 'PropGem Portfolio',
+          title: 'Homeowner',
+          headerTitle: 'PropGem Homeowner & Portfolio',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="pie-chart" size={size} color={color} />
+            <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />
@@ -40,7 +51,7 @@ export default function TabLayout() {
         name="mortgage"
         options={{
           title: 'Mortgage',
-          headerTitle: 'Mortgage & Payment Calc',
+          headerTitle: 'Mortgage Calculator',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calculator" size={size} color={color} />
           ),
@@ -49,7 +60,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ltv"
         options={{
-          title: 'LTV Calc',
+          title: 'LTV & Equity',
           headerTitle: 'Loan-to-Value & Equity',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="shield-checkmark" size={size} color={color} />
@@ -59,8 +70,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cash-flow"
         options={{
-          title: 'Cash Flow',
-          headerTitle: 'Rental Cash Flow Sandbox',
+          title: 'Investor',
+          headerTitle: 'Investor Cash Flow Sandbox',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="stats-chart" size={size} color={color} />
           ),

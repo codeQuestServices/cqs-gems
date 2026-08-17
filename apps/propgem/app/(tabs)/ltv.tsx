@@ -3,104 +3,151 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   ScrollView,
-  SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import { calculateLTV } from '@cqs/finance-logic';
+import { useSafeInsets } from '../../src/hooks/useSafeInsets';
+import { SliderInput } from '../../src/components/SliderInput';
+import { PmiIndicator } from '../../src/components/PmiIndicator';
+import { triggerLightImpact } from '../../src/utils/haptics';
 
 export default function LTVScreen() {
-  const [loanAmount, setLoanAmount] = useState('360000');
-  const [appraisedValue, setAppraisedValue] = useState('450000');
+  const { screenBottomPadding } = useSafeInsets();
+
+  const [loanAmount, setLoanAmount] = useState(360000);
+  const [appraisedValue, setAppraisedValue] = useState(450000);
+
+  const setTargetLTV = (targetPercent: number) => {
+    triggerLightImpact();
+    const calculatedLoan = Math.round((appraisedValue * targetPercent) / 100);
+    setLoanAmount(calculatedLoan);
+  };
 
   const result = useMemo(() => {
     return calculateLTV({
-      loanAmount: parseFloat(loanAmount) || 0,
-      appraisedValue: parseFloat(appraisedValue) || 0,
+      loanAmount,
+      appraisedValue,
     });
   }, [loanAmount, appraisedValue]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: screenBottomPadding },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Highlight Result Card */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>LOAN-TO-VALUE RATIO (LTV)</Text>
           <Text style={styles.highlightValue}>{result.ltvRatio}%</Text>
           <View style={[styles.pmiBadge, result.requiresPMI ? styles.pmiWarning : styles.pmiSafe]}>
             <Text style={styles.pmiBadgeText}>
-              {result.requiresPMI ? 'PMI Required (LTV > 80%)' : 'No PMI Required (LTV <= 80%)'}
+              {result.requiresPMI ? 'PMI Required (LTV > 80%)' : 'Conventional Equity Safe (LTV <= 80%)'}
             </Text>
           </View>
         </View>
 
+        {/* PMI Auto Detection Alert */}
+        <PmiIndicator loanAmount={loanAmount} homePrice={appraisedValue} />
+
         {/* Equity Breakdown */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Home Equity Analysis</Text>
+          <Text style={styles.sectionTitle}>Homeowner Equity Position</Text>
+          
           <View style={styles.breakdownRow}>
             <Text style={styles.breakdownLabel}>Home Appraised Value</Text>
-            <Text style={styles.breakdownValue}>${(parseFloat(appraisedValue) || 0).toLocaleString()}</Text>
+            <Text style={styles.breakdownValue}>${appraisedValue.toLocaleString()}</Text>
           </View>
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownLabel}>Outstanding Loan Balance</Text>
-            <Text style={styles.breakdownValue}>${(parseFloat(loanAmount) || 0).toLocaleString()}</Text>
+            <Text style={styles.breakdownLabel}>Outstanding Loan Principal</Text>
+            <Text style={styles.breakdownValue}>${loanAmount.toLocaleString()}</Text>
           </View>
           <View style={styles.breakdownRow}>
             <Text style={styles.breakdownLabel}>Total Homeowner Equity ($)</Text>
             <Text style={styles.breakdownValueGold}>${result.equityValue.toLocaleString()}</Text>
           </View>
           <View style={[styles.breakdownRow, { borderBottomWidth: 0 }]}>
-            <Text style={styles.breakdownLabel}>Homeowner Equity Share (%)</Text>
+            <Text style={styles.breakdownLabel}>Equity Share (%)</Text>
             <Text style={styles.breakdownValueGold}>{result.equityPercent}%</Text>
           </View>
         </View>
 
-        {/* Inputs */}
+        {/* Target LTV Preset Chips & Inputs */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Appraisal & Loan Inputs</Text>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Appraised Property Value ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={appraisedValue}
-              onChangeText={setAppraisedValue}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
+          <View style={styles.presetHeaderRow}>
+            <Text style={styles.sectionTitle}>Appraisal & Financing Sliders</Text>
+            <View style={styles.chipRow}>
+              {[70, 80, 90, 95].map((target) => (
+                <TouchableOpacity
+                  key={target}
+                  style={[
+                    styles.chip,
+                    Math.abs(result.ltvRatio - target) < 0.5 && styles.chipActive,
+                  ]}
+                  onPress={() => setTargetLTV(target)}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      Math.abs(result.ltvRatio - target) < 0.5 && styles.chipTextActive,
+                    ]}
+                  >
+                    {target}% LTV
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Loan Principal Balance ($)</Text>
-            <TextInput
-              style={styles.input}
-              value={loanAmount}
-              onChangeText={setLoanAmount}
-              keyboardType="numeric"
-              placeholderTextColor="#64748B"
-            />
-          </View>
+          <SliderInput
+            label="Appraised Property Value"
+            value={appraisedValue}
+            onChange={(val) => {
+              setAppraisedValue(val);
+              if (loanAmount > val) setLoanAmount(val);
+            }}
+            min={50000}
+            max={2500000}
+            step={5000}
+            prefix="$"
+            accentColor="#F59E0B"
+          />
+
+          <SliderInput
+            label="Loan Principal Balance"
+            value={loanAmount}
+            onChange={setLoanAmount}
+            min={0}
+            max={appraisedValue}
+            step={2500}
+            prefix="$"
+            accentColor="#38BDF8"
+          />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090D16',
+    backgroundColor: '#09090B',
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
   },
   cardHighlight: {
-    backgroundColor: '#1E293B',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#27272A',
     alignItems: 'center',
   },
   highlightLabel: {
@@ -111,9 +158,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   highlightValue: {
-    color: '#F8FAFC',
+    color: '#FAFAFA',
     fontSize: 40,
-    fontWeight: '800',
+    fontWeight: '900',
     marginBottom: 12,
   },
   pmiBadge: {
@@ -122,72 +169,82 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   pmiWarning: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    borderColor: '#EF4444',
+    backgroundColor: 'rgba(244, 63, 94, 0.2)',
+    borderColor: '#F43F5E',
     borderWidth: 1,
   },
   pmiSafe: {
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
-    borderColor: '#22C55E',
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderColor: '#10B981',
     borderWidth: 1,
   },
   pmiBadgeText: {
-    color: '#F8FAFC',
+    color: '#FAFAFA',
     fontSize: 12,
     fontWeight: '600',
   },
   card: {
-    backgroundColor: '#131D2F',
+    backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: '#27272A',
   },
   sectionTitle: {
-    color: '#F8FAFC',
-    fontSize: 16,
+    color: '#FAFAFA',
+    fontSize: 15,
     fontWeight: '700',
     marginBottom: 14,
+  },
+  presetHeaderRow: {
+    marginBottom: 14,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  chip: {
+    backgroundColor: '#27272A',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#3F3F46',
+  },
+  chipActive: {
+    backgroundColor: '#38BDF8',
+    borderColor: '#38BDF8',
+  },
+  chipText: {
+    color: '#A1A1AA',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  chipTextActive: {
+    color: '#09090B',
   },
   breakdownRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
+    borderBottomColor: '#27272A',
   },
   breakdownLabel: {
-    color: '#94A3B8',
-    fontSize: 14,
+    color: '#A1A1AA',
+    fontSize: 13,
   },
   breakdownValue: {
-    color: '#F1F5F9',
-    fontSize: 14,
+    color: '#FAFAFA',
+    fontSize: 13,
     fontWeight: '600',
   },
   breakdownValueGold: {
     color: '#FBBF24',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
-  },
-  inputGroup: {
-    marginBottom: 14,
-  },
-  label: {
-    color: '#94A3B8',
-    fontSize: 13,
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: '#0F172A',
-    borderWidth: 1,
-    borderColor: '#334155',
-    borderRadius: 8,
-    color: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
   },
 });

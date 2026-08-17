@@ -74,6 +74,8 @@ describe('@cqs/finance-logic Test Suite', () => {
       expect(result.requiresPMI).toBe(true);
       expect(result.equityValue).toBe(40000);
       expect(result.equityPercent).toBe(10);
+      expect(result.estimatedMonthlyPMI).toBe(150);
+      expect(result.amountNeededToReach80LTV).toBe(40000);
     });
 
     it('should not require PMI when LTV <= 80%', () => {
@@ -86,6 +88,8 @@ describe('@cqs/finance-logic Test Suite', () => {
       expect(result.requiresPMI).toBe(false);
       expect(result.equityValue).toBe(80000);
       expect(result.equityPercent).toBe(20);
+      expect(result.estimatedMonthlyPMI).toBe(0);
+      expect(result.amountNeededToReach80LTV).toBe(0);
     });
 
     it('should handle zero appraised value gracefully', () => {
