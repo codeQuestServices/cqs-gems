@@ -25,8 +25,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
-      }
-    }
+        "projectId": "970d4f16-0694-42a4-9a09-699bf1d6a925"
+      },
+      "router": {}
+    },
+    "owner": "code-quest-services"
   }
 }
