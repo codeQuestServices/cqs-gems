@@ -46,20 +46,27 @@ export function calculateMortgage(input: MortgageInput): MortgageCalculationResu
       (Math.pow(1 + monthlyRate, totalMonths) - 1);
   }
 
-  const totalCostOfLoan = monthlyPAndI * totalMonths;
-  const totalInterestPaid = Math.max(0, totalCostOfLoan - loanAmount);
-  const totalMonthlyPayment = monthlyPAndI + monthlyTax + monthlyInsurance + monthlyHOA;
+  const roundedMonthlyPAndI = round(monthlyPAndI);
+  const roundedMonthlyTax = round(monthlyTax);
+  const roundedMonthlyInsurance = round(monthlyInsurance);
+  const roundedMonthlyHOA = round(monthlyHOA);
+
+  const totalCostOfLoan = round(roundedMonthlyPAndI * totalMonths);
+  const totalInterestPaid = Math.max(0, round(totalCostOfLoan - loanAmount));
+  const totalMonthlyPayment = round(
+    roundedMonthlyPAndI + roundedMonthlyTax + roundedMonthlyInsurance + roundedMonthlyHOA
+  );
 
   return {
     loanAmount: round(loanAmount),
     downPaymentPercent: round(downPaymentPercent, 2),
-    monthlyPrincipalAndInterest: round(monthlyPAndI),
-    monthlyPropertyTax: round(monthlyTax),
-    monthlyInsurance: round(monthlyInsurance),
-    monthlyHOA: round(monthlyHOA),
-    totalMonthlyPayment: round(totalMonthlyPayment),
-    totalInterestPaid: round(totalInterestPaid),
-    totalCostOfLoan: round(totalCostOfLoan),
+    monthlyPrincipalAndInterest: roundedMonthlyPAndI,
+    monthlyPropertyTax: roundedMonthlyTax,
+    monthlyInsurance: roundedMonthlyInsurance,
+    monthlyHOA: roundedMonthlyHOA,
+    totalMonthlyPayment,
+    totalInterestPaid,
+    totalCostOfLoan,
   };
 }
 

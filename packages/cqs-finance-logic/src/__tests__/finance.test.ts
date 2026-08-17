@@ -27,8 +27,8 @@ describe('@cqs/finance-logic Test Suite', () => {
       expect(result.monthlyInsurance).toBe(100);
       expect(result.monthlyHOA).toBe(50);
       expect(result.totalMonthlyPayment).toBe(2468.56);
-      expect(result.totalInterestPaid).toBe(370682.26);
-      expect(result.totalCostOfLoan).toBe(690682.26);
+      expect(result.totalInterestPaid).toBe(370681.60);
+      expect(result.totalCostOfLoan).toBe(690681.60);
     });
 
     it('should handle zero interest rate or zero loan amount edge cases', () => {
