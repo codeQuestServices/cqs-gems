@@ -1,12 +1,10 @@
 ## Immediate State
-- Established permanent, self-updating UI Navigation & Cognitive Load Context system at `.agents/memory/ui_navigation_context.md` with explicit density heuristics, navigation graph, and screen audit matrix.
-- Updated GitHub Actions workflow (`.github/workflows/main.yml`) EAS Build step to target Android exclusively via `eas build --profile preview --platform android --non-interactive`, removing all iOS build and credential overhead.
-- Verified `eas.json` Android preview configuration generates direct APKs (`"buildType": "apk"`).
-- Integrated `react-native-safe-area-context` and custom `useSafeInsets` dynamic hook across layouts, bottom tabs, sticky buttons, and modal footers for seamless Android soft-keys / iOS home indicators support.
-- Built hybrid slider/text numerical input component (`SliderInput`) with step buttons and `expo-haptics` tactile ticks.
-- Created `StackedOutflowBar` component providing interactive horizontal payment composition visualization (P&I, Taxes, Insurance, HOA, PMI).
-- Created `PmiIndicator` component with automatic LTV threshold detection, monthly PMI fee estimates, and equity milestone gaps.
-- Built shared `PortfolioKpiSummary` component styled with high-contrast dark theme (`#09090B` background, zinc `#27272A` borders, gold equity accents).
-- Upgraded `apps/propgem/app/(tabs)/index.tsx` (Homeowner + Portfolio hub) and `apps/propgem/app/(tabs)/cash-flow.tsx` (Investor NOI, Cap Rate, CoC analysis).
-- Validated with 100% passing tests in `@cqs/finance-logic` and clean `yarn typecheck` and `yarn lint` across all workspaces.
+- Executed Phase 2 UI/UX Refinement: Reduced Cognitive Load Ratings across all PropGem screens to Optimal levels (Ratings 1–2).
+- Implemented reusable `CollapsibleSection` component with animated expand/collapse, haptic triggers, live badge summaries, and >= 44x44 dp touch headers.
+- Refactored `index.tsx` (Homeowner Sandbox) and `cash-flow.tsx` (Investor Engine) to present 4 core deal drivers above the fold with secondary taxes, insurance, HOA, and operating reserves tucked into progressive disclosure accordions.
+- Refactored `mortgage.tsx` to encapsulate escrows and 12-month amortization schedules in collapsible containers.
+- Enhanced touch targets across all sliders, stepper buttons, chips, filter pills, and form inputs to strictly meet or exceed 44x44 dp mobile accessibility standards.
+- Maintained verified dynamic safe insets (`useSafeInsets`) for Android 3-button navigation and iOS home indicators.
+- Validated with 100% passing tests in `@cqs/finance-logic` (10/10) and clean `yarn typecheck` and `yarn lint` across all workspaces.
+
 

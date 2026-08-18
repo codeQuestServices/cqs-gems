@@ -12,6 +12,7 @@ import { usePortfolio } from '../../src/context/PortfolioContext';
 import { useSafeInsets } from '../../src/hooks/useSafeInsets';
 import { PortfolioKpiSummary } from '../../src/components/PortfolioKpiSummary';
 import { SliderInput } from '../../src/components/SliderInput';
+import { CollapsibleSection } from '../../src/components/CollapsibleSection';
 import { triggerLightImpact, triggerSuccessHaptic } from '../../src/utils/haptics';
 
 export default function InvestorCashFlowScreen() {
@@ -88,10 +89,10 @@ export default function InvestorCashFlowScreen() {
           totalPropertiesCount={properties.length}
         />
 
-        {/* Section Title */}
+        {/* Section Header */}
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.mainTitle}>Investor Return & Cash Flow Engine</Text>
+          <View style={{ flex: 1, marginRight: 8 }}>
+            <Text style={styles.mainTitle}>Investor Return Engine</Text>
             <Text style={styles.subTitle}>
               Real-time Net Operating Income (NOI), Cap Rate, and Cash-on-Cash modeling
             </Text>
@@ -101,12 +102,12 @@ export default function InvestorCashFlowScreen() {
             onPress={handleResetDefaults}
             activeOpacity={0.7}
           >
-            <Ionicons name="refresh" size={14} color="#A1A1AA" />
+            <Ionicons name="refresh" size={16} color="#A1A1AA" />
             <Text style={styles.resetBtnText}>Reset</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Highlight Cash Flow Hero Card */}
+        {/* Highlight Cash Flow Hero Card: 1 Primary Hero Metric */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>NET MONTHLY CASH FLOW</Text>
           <Text
@@ -122,9 +123,9 @@ export default function InvestorCashFlowScreen() {
           </Text>
         </View>
 
-        {/* 3-Pillar Investment Return Metrics */}
+        {/* 3-Pillar Investment Return Metrics (Max 3 Secondary Metrics) */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Key Investment Performance Metrics</Text>
+          <Text style={styles.sectionTitle}>Key Return Metrics</Text>
           
           <View style={styles.metricsGrid}>
             <View style={styles.metricBox}>
@@ -132,7 +133,7 @@ export default function InvestorCashFlowScreen() {
               <Text style={styles.metricValueSky}>
                 {result.capRate !== undefined ? `${result.capRate}%` : 'N/A'}
               </Text>
-              <Text style={styles.metricSub}>Annual NOI / Price</Text>
+              <Text style={styles.metricSub}>NOI / Price</Text>
             </View>
 
             <View style={styles.metricBox}>
@@ -140,7 +141,7 @@ export default function InvestorCashFlowScreen() {
               <Text style={styles.metricValueGold}>
                 {result.cashOnCashReturn !== undefined ? `${result.cashOnCashReturn}%` : 'N/A'}
               </Text>
-              <Text style={styles.metricSub}>Cash Flow / Invested</Text>
+              <Text style={styles.metricSub}>Cash Flow / Inv.</Text>
             </View>
 
             <View style={styles.metricBox}>
@@ -148,49 +149,14 @@ export default function InvestorCashFlowScreen() {
               <Text style={styles.metricValueEmerald}>
                 ${result.netOperatingIncomeAnnual.toLocaleString()}
               </Text>
-              <Text style={styles.metricSub}>Before Debt Service</Text>
-            </View>
-          </View>
-
-          {/* Detailed Operating Statement Breakdown */}
-          <View style={styles.statementCard}>
-            <View style={styles.statementRow}>
-              <Text style={styles.statementLabel}>Gross Monthly Income</Text>
-              <Text style={styles.statementValueGreen}>+${result.totalMonthlyIncome.toLocaleString()}</Text>
-            </View>
-
-            <View style={styles.statementRow}>
-              <Text style={styles.statementLabel}>Operating Expenses (Tax, Ins, Maint, Mgmt)</Text>
-              <Text style={styles.statementValueRed}>-${result.operatingExpenses.toLocaleString()}</Text>
-            </View>
-
-            <View style={[styles.statementRow, styles.statementHighlightRow]}>
-              <Text style={styles.statementLabelBold}>Monthly NOI (Pre-Debt Service)</Text>
-              <Text style={styles.statementValueBold}>${result.netOperatingIncomeMonthly.toLocaleString()}</Text>
-            </View>
-
-            <View style={styles.statementRow}>
-              <Text style={styles.statementLabel}>Debt Service (Mortgage P&I)</Text>
-              <Text style={styles.statementValueRed}>-${mortgage.toLocaleString()}</Text>
-            </View>
-
-            <View style={[styles.statementRow, styles.statementFinalRow]}>
-              <Text style={styles.statementLabelFinal}>Net Monthly Cash Flow</Text>
-              <Text
-                style={[
-                  styles.statementValueFinal,
-                  { color: isPositiveCashFlow ? '#4ADE80' : '#F87171' },
-                ]}
-              >
-                {isPositiveCashFlow ? '+' : ''}${result.monthlyCashFlow.toLocaleString()}
-              </Text>
+              <Text style={styles.metricSub}>Pre-Debt Service</Text>
             </View>
           </View>
         </View>
 
-        {/* Financial & Operational Inputs */}
+        {/* Primary Investment Drivers (4 Visible Core Controls) */}
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Income & Asset Valuation</Text>
+          <Text style={styles.sectionTitle}>Core Deal Parameters</Text>
 
           <SliderInput
             label="Gross Monthly Rental Income"
@@ -215,22 +181,19 @@ export default function InvestorCashFlowScreen() {
           />
 
           <SliderInput
-            label="Total Initial Cash Invested (Down + Rehab)"
+            label="Total Initial Cash Invested"
             value={initialInvestment}
             onChange={setInitialInvestment}
             min={5000}
             max={1000000}
             step={5000}
             prefix="$"
+            helperText="Down payment + closing + rehab"
             accentColor="#F59E0B"
           />
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Debt & Operating Expenses</Text>
 
           <SliderInput
-            label="Monthly Mortgage Payment (P&I)"
+            label="Monthly Mortgage Debt Service (P&I)"
             value={mortgage}
             onChange={setMortgage}
             min={0}
@@ -239,7 +202,15 @@ export default function InvestorCashFlowScreen() {
             prefix="$"
             accentColor="#818CF8"
           />
+        </View>
 
+        {/* Progressive Disclosure: Operating Expenses & Reserves Accordion */}
+        <CollapsibleSection
+          title="Operating Expenses & Reserves"
+          subtitle="Taxes, insurance, HOA, maintenance, vacancy & management"
+          badge={`-$${result.operatingExpenses.toLocaleString()}/mo`}
+          icon="shield-outline"
+        >
           <SliderInput
             label="Monthly Property Tax"
             value={tax}
@@ -308,7 +279,49 @@ export default function InvestorCashFlowScreen() {
             helperText={`$${Math.round((rent * mgmtFeePercent) / 100)}/mo`}
             accentColor="#38BDF8"
           />
-        </View>
+        </CollapsibleSection>
+
+        {/* Progressive Disclosure: Operating Statement Breakdown */}
+        <CollapsibleSection
+          title="Operating Statement Breakdown"
+          subtitle="Itemized revenue, operating outflow, and net cash flow"
+          badge={isPositiveCashFlow ? 'Profitable' : 'Cash Drain'}
+          icon="document-text-outline"
+        >
+          <View style={styles.statementCard}>
+            <View style={styles.statementRow}>
+              <Text style={styles.statementLabel}>Gross Monthly Income</Text>
+              <Text style={styles.statementValueGreen}>+${result.totalMonthlyIncome.toLocaleString()}</Text>
+            </View>
+
+            <View style={styles.statementRow}>
+              <Text style={styles.statementLabel}>Operating Expenses</Text>
+              <Text style={styles.statementValueRed}>-${result.operatingExpenses.toLocaleString()}</Text>
+            </View>
+
+            <View style={[styles.statementRow, styles.statementHighlightRow]}>
+              <Text style={styles.statementLabelBold}>Monthly NOI (Pre-Debt Service)</Text>
+              <Text style={styles.statementValueBold}>${result.netOperatingIncomeMonthly.toLocaleString()}</Text>
+            </View>
+
+            <View style={styles.statementRow}>
+              <Text style={styles.statementLabel}>Debt Service (Mortgage P&I)</Text>
+              <Text style={styles.statementValueRed}>-${mortgage.toLocaleString()}</Text>
+            </View>
+
+            <View style={[styles.statementRow, styles.statementFinalRow]}>
+              <Text style={styles.statementLabelFinal}>Net Monthly Cash Flow</Text>
+              <Text
+                style={[
+                  styles.statementValueFinal,
+                  { color: isPositiveCashFlow ? '#4ADE80' : '#F87171' },
+                ]}
+              >
+                {isPositiveCashFlow ? '+' : ''}${result.monthlyCashFlow.toLocaleString()}
+              </Text>
+            </View>
+          </View>
+        </CollapsibleSection>
       </ScrollView>
     </View>
   );
@@ -337,18 +350,19 @@ const styles = StyleSheet.create({
   subTitle: {
     color: '#A1A1AA',
     fontSize: 12,
-    maxWidth: 260,
+    lineHeight: 16,
   },
   resetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     backgroundColor: '#18181B',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#27272A',
+    minHeight: 44, // Exceeds 44x44 dp standard
   },
   resetBtnText: {
     color: '#D4D4D8',
@@ -398,7 +412,6 @@ const styles = StyleSheet.create({
   metricsGrid: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 16,
   },
   metricBox: {
     flex: 1,
@@ -497,3 +510,4 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
+

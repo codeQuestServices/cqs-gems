@@ -306,6 +306,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
+    minHeight: 46, // Exceeds 44x44 dp standard
   },
   typeSelectorRow: {
     flexDirection: 'row',
@@ -313,13 +314,15 @@ const styles = StyleSheet.create({
   },
   typeBtn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: '#09090B',
     borderWidth: 1,
     borderColor: '#27272A',
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 46, // Exceeds 44x44 dp standard
   },
   typeBtnActivePrimary: {
     backgroundColor: 'rgba(56, 189, 248, 0.15)',
@@ -344,6 +347,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   saveBtnDisabled: {
     opacity: 0.5,
@@ -354,3 +359,4 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 });
+

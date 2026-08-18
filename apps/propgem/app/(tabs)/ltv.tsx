@@ -208,11 +208,14 @@ const styles = StyleSheet.create({
   },
   chip: {
     backgroundColor: '#27272A',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#3F3F46',
+    minHeight: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipActive: {
     backgroundColor: '#38BDF8',
@@ -226,6 +229,7 @@ const styles = StyleSheet.create({
   chipTextActive: {
     color: '#09090B',
   },
+
   breakdownRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

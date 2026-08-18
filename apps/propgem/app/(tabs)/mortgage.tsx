@@ -11,7 +11,8 @@ import { useSafeInsets } from '../../src/hooks/useSafeInsets';
 import { SliderInput } from '../../src/components/SliderInput';
 import { StackedOutflowBar } from '../../src/components/StackedOutflowBar';
 import { PmiIndicator } from '../../src/components/PmiIndicator';
-import { triggerLightImpact, triggerSelectionHaptic } from '../../src/utils/haptics';
+import { CollapsibleSection } from '../../src/components/CollapsibleSection';
+import { triggerLightImpact } from '../../src/utils/haptics';
 
 export default function MortgageScreen() {
   const { screenBottomPadding } = useSafeInsets();
@@ -23,7 +24,6 @@ export default function MortgageScreen() {
   const [propertyTax, setPropertyTax] = useState(4200);
   const [insurance, setInsurance] = useState(1200);
   const [hoa, setHoa] = useState(150);
-  const [showSchedule, setShowSchedule] = useState(false);
 
   const setDownPaymentPercent = (percent: number) => {
     triggerLightImpact();
@@ -56,9 +56,9 @@ export default function MortgageScreen() {
   }, [result.loanAmount, homePrice]);
 
   const totalMonthlyWithPmi = result.totalMonthlyPayment + (ltvResult.requiresPMI ? ltvResult.estimatedMonthlyPMI : 0);
+  const monthlyEscrows = result.monthlyPropertyTax + result.monthlyInsurance + result.monthlyHOA;
 
   const schedule = useMemo(() => {
-    if (!showSchedule) return [];
     return generateAmortizationSchedule(
       {
         homePrice,
@@ -68,7 +68,7 @@ export default function MortgageScreen() {
       },
       12 // First 12 months preview
     );
-  }, [showSchedule, homePrice, downPayment, interestRate, loanTerm]);
+  }, [homePrice, downPayment, interestRate, loanTerm]);
 
   return (
     <View style={styles.container}>
@@ -79,14 +79,14 @@ export default function MortgageScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Total Payment Hero Card */}
+        {/* Total Payment Hero Card: 1 Primary KPI */}
         <View style={styles.cardHighlight}>
           <Text style={styles.highlightLabel}>ESTIMATED TOTAL MONTHLY PAYMENT</Text>
           <Text style={styles.highlightValue}>
             ${totalMonthlyWithPmi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           <Text style={styles.highlightSub}>
-            P&I: ${result.monthlyPrincipalAndInterest.toLocaleString()} / mo | Lifetime Interest: ${result.totalInterestPaid.toLocaleString()}
+            P&I: ${result.monthlyPrincipalAndInterest.toLocaleString()}/mo | Lifetime Interest: ${result.totalInterestPaid.toLocaleString()}
           </Text>
         </View>
 
@@ -103,7 +103,7 @@ export default function MortgageScreen() {
           totalMonthlyPayment={totalMonthlyWithPmi}
         />
 
-        {/* Interactive Loan Parameters */}
+        {/* Primary Interactive Loan Parameters (4 Core Inputs) */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Mortgage & Down Payment</Text>
           
@@ -133,6 +133,8 @@ export default function MortgageScreen() {
                     Math.abs(result.downPaymentPercent - pct) < 0.5 && styles.chipActive,
                   ]}
                   onPress={() => setDownPaymentPercent(pct)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                 >
                   <Text
                     style={[
@@ -175,6 +177,7 @@ export default function MortgageScreen() {
               <TouchableOpacity
                 style={[styles.termBtn, loanTerm === 15 && styles.termBtnActive]}
                 onPress={() => handleTermChange(15)}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.termBtnText, loanTerm === 15 && styles.termBtnTextActive]}>
                   15-Year Fixed
@@ -183,6 +186,7 @@ export default function MortgageScreen() {
               <TouchableOpacity
                 style={[styles.termBtn, loanTerm === 30 && styles.termBtnActive]}
                 onPress={() => handleTermChange(30)}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.termBtnText, loanTerm === 30 && styles.termBtnTextActive]}>
                   30-Year Fixed
@@ -192,10 +196,13 @@ export default function MortgageScreen() {
           </View>
         </View>
 
-        {/* Taxes & Escrows */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Escrows & Property Fees</Text>
-
+        {/* Progressive Disclosure: Taxes & Escrows */}
+        <CollapsibleSection
+          title="Taxes, Insurance & HOA Escrows"
+          subtitle="Annual property tax, insurance, and recurring HOA fees"
+          badge={`$${monthlyEscrows}/mo`}
+          icon="receipt-outline"
+        >
           <SliderInput
             label="Annual Property Tax"
             value={propertyTax}
@@ -231,41 +238,33 @@ export default function MortgageScreen() {
             suffix="/mo"
             accentColor="#A78BFA"
           />
-        </View>
+        </CollapsibleSection>
 
-        {/* Amortization Schedule Preview */}
-        <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.scheduleToggleRow}
-            onPress={() => {
-              triggerSelectionHaptic();
-              setShowSchedule(!showSchedule);
-            }}
-          >
-            <Text style={styles.sectionTitle}>Amortization Schedule (Year 1)</Text>
-            <Text style={styles.scheduleToggleText}>{showSchedule ? 'Hide' : 'Show Preview'}</Text>
-          </TouchableOpacity>
-
-          {showSchedule && (
-            <View style={styles.scheduleTable}>
-              <View style={styles.tableHeader}>
-                <Text style={[styles.colHeader, { flex: 0.8 }]}>Mo</Text>
-                <Text style={[styles.colHeader, { flex: 1.2 }]}>Principal</Text>
-                <Text style={[styles.colHeader, { flex: 1.2 }]}>Interest</Text>
-                <Text style={[styles.colHeader, { flex: 1.4 }]}>Balance</Text>
-              </View>
-
-              {schedule.map((row) => (
-                <View key={row.month} style={styles.tableRow}>
-                  <Text style={[styles.colCell, { flex: 0.8 }]}>{row.month}</Text>
-                  <Text style={[styles.colCellGreen, { flex: 1.2 }]}>${row.principalPayment.toLocaleString()}</Text>
-                  <Text style={[styles.colCell, { flex: 1.2 }]}>${row.interestPayment.toLocaleString()}</Text>
-                  <Text style={[styles.colCellBold, { flex: 1.4 }]}>${row.remainingBalance.toLocaleString()}</Text>
-                </View>
-              ))}
+        {/* Progressive Disclosure: Amortization Schedule (Year 1) */}
+        <CollapsibleSection
+          title="Amortization Schedule (Year 1)"
+          subtitle="Monthly breakdown of principal paydown vs interest allocation"
+          badge="12 Months"
+          icon="calendar-outline"
+        >
+          <View style={styles.scheduleTable}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.colHeader, { flex: 0.8 }]}>Mo</Text>
+              <Text style={[styles.colHeader, { flex: 1.2 }]}>Principal</Text>
+              <Text style={[styles.colHeader, { flex: 1.2 }]}>Interest</Text>
+              <Text style={[styles.colHeader, { flex: 1.4 }]}>Balance</Text>
             </View>
-          )}
-        </View>
+
+            {schedule.map((row) => (
+              <View key={row.month} style={styles.tableRow}>
+                <Text style={[styles.colCell, { flex: 0.8 }]}>{row.month}</Text>
+                <Text style={[styles.colCellGreen, { flex: 1.2 }]}>${row.principalPayment.toLocaleString()}</Text>
+                <Text style={[styles.colCell, { flex: 1.2 }]}>${row.interestPayment.toLocaleString()}</Text>
+                <Text style={[styles.colCellBold, { flex: 1.4 }]}>${row.remainingBalance.toLocaleString()}</Text>
+              </View>
+            ))}
+          </View>
+        </CollapsibleSection>
       </ScrollView>
     </View>
   );
@@ -338,11 +337,14 @@ const styles = StyleSheet.create({
   },
   chip: {
     backgroundColor: '#27272A',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#3F3F46',
+    minHeight: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipActive: {
     backgroundColor: '#38BDF8',
@@ -357,16 +359,16 @@ const styles = StyleSheet.create({
     color: '#09090B',
   },
   termContainer: {
-    marginBottom: 14,
+    marginBottom: 8,
   },
   termToggleRow: {
     flexDirection: 'row',
     backgroundColor: '#09090B',
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#27272A',
     overflow: 'hidden',
-    height: 42,
+    height: 46, // Exceeds 44x44 dp standard
   },
   termBtn: {
     flex: 1,
@@ -385,18 +387,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
   },
-  scheduleToggleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  scheduleToggleText: {
-    color: '#38BDF8',
-    fontSize: 13,
-    fontWeight: '600',
-  },
   scheduleTable: {
-    marginTop: 10,
     backgroundColor: '#09090B',
     borderRadius: 10,
     padding: 12,
@@ -436,3 +427,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+

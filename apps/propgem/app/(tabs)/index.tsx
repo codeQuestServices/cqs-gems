@@ -16,6 +16,7 @@ import { SliderInput } from '../../src/components/SliderInput';
 import { StackedOutflowBar } from '../../src/components/StackedOutflowBar';
 import { PmiIndicator } from '../../src/components/PmiIndicator';
 import { PropertyCard } from '../../src/components/PropertyCard';
+import { CollapsibleSection } from '../../src/components/CollapsibleSection';
 import { triggerLightImpact, triggerSelectionHaptic } from '../../src/utils/haptics';
 
 export default function HomeownerAndPortfolioScreen() {
@@ -71,6 +72,7 @@ export default function HomeownerAndPortfolioScreen() {
   }, [mortgageResult.loanAmount, homePrice]);
 
   const totalWithPmi = mortgageResult.totalMonthlyPayment + (ltvResult.requiresPMI ? ltvResult.estimatedMonthlyPMI : 0);
+  const monthlyEscrowTotal = mortgageResult.monthlyPropertyTax + mortgageResult.monthlyInsurance + mortgageResult.monthlyHOA;
 
   const primaryCount = properties.filter((p) => p.propertyType === 'PRIMARY').length;
   const rentalCount = properties.filter((p) => p.propertyType === 'RENTAL').length;
@@ -93,21 +95,21 @@ export default function HomeownerAndPortfolioScreen() {
         {/* Section Header */}
         <View style={styles.sectionHeaderRow}>
           <View>
-            <Text style={styles.mainTitle}>Homeowner & Financing Calculator</Text>
+            <Text style={styles.mainTitle}>Homeowner Financing Sandbox</Text>
             <Text style={styles.subTitle}>
               Real-time payment simulation, PMI detection, and outflow composition
             </Text>
           </View>
         </View>
 
-        {/* Highlight Payment Hero Card */}
+        {/* Highlight Payment Hero Card: 1 Primary Metric + 2 Supporting Metrics */}
         <View style={styles.heroCard}>
           <Text style={styles.heroLabel}>ESTIMATED TOTAL MONTHLY PAYMENT</Text>
           <Text style={styles.heroValue}>
             ${totalWithPmi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           <Text style={styles.heroSub}>
-            P&I: ${mortgageResult.monthlyPrincipalAndInterest.toLocaleString()} | Tax & Ins: ${(mortgageResult.monthlyPropertyTax + mortgageResult.monthlyInsurance).toLocaleString()}/mo
+            P&I: ${mortgageResult.monthlyPrincipalAndInterest.toLocaleString()} | Taxes & Escrows: ${monthlyEscrowTotal.toLocaleString()}/mo
           </Text>
         </View>
 
@@ -127,9 +129,9 @@ export default function HomeownerAndPortfolioScreen() {
           totalMonthlyPayment={totalWithPmi}
         />
 
-        {/* Interactive Hybrid Slider Controls */}
+        {/* Primary Interactive Loan Parameters (4 Visible Core Controls) */}
         <View style={styles.card}>
-          <Text style={styles.cardSectionTitle}>Interactive Loan Parameters</Text>
+          <Text style={styles.cardSectionTitle}>Core Loan Parameters</Text>
 
           {/* Home Purchase Price Slider */}
           <SliderInput
@@ -160,6 +162,8 @@ export default function HomeownerAndPortfolioScreen() {
                     Math.abs(mortgageResult.downPaymentPercent - pct) < 0.5 && styles.chipActive,
                   ]}
                   onPress={() => setDownPaymentPercent(pct)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                 >
                   <Text
                     style={[
@@ -197,13 +201,14 @@ export default function HomeownerAndPortfolioScreen() {
             accentColor="#818CF8"
           />
 
-          {/* Loan Term Toggle Buttons */}
+          {/* Loan Term Toggle Buttons (Min 44dp height) */}
           <View style={styles.termContainer}>
             <Text style={styles.subLabel}>Loan Duration (Years)</Text>
             <View style={styles.termToggleRow}>
               <TouchableOpacity
                 style={[styles.termBtn, loanTerm === 15 && styles.termBtnActive]}
                 onPress={() => handleTermChange(15)}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.termBtnText, loanTerm === 15 && styles.termBtnTextActive]}>
                   15-Year Fixed
@@ -212,6 +217,7 @@ export default function HomeownerAndPortfolioScreen() {
               <TouchableOpacity
                 style={[styles.termBtn, loanTerm === 30 && styles.termBtnActive]}
                 onPress={() => handleTermChange(30)}
+                activeOpacity={0.8}
               >
                 <Text style={[styles.termBtnText, loanTerm === 30 && styles.termBtnTextActive]}>
                   30-Year Fixed
@@ -219,7 +225,15 @@ export default function HomeownerAndPortfolioScreen() {
               </TouchableOpacity>
             </View>
           </View>
+        </View>
 
+        {/* Progressive Disclosure: Advanced Escrows & Property Fees Accordion */}
+        <CollapsibleSection
+          title="Taxes, Insurance & HOA Escrows"
+          subtitle="Annual property tax, insurance, and recurring HOA dues"
+          badge={`$${monthlyEscrowTotal}/mo`}
+          icon="receipt-outline"
+        >
           {/* Property Tax */}
           <SliderInput
             label="Annual Property Tax"
@@ -258,10 +272,31 @@ export default function HomeownerAndPortfolioScreen() {
             suffix="/mo"
             accentColor="#A78BFA"
           />
-        </View>
+        </CollapsibleSection>
 
-        {/* Portfolio Assets Section */}
+        {/* Distinct Portfolio Assets Section */}
         <View style={styles.portfolioSection}>
+          <View style={styles.portfolioHeaderRow}>
+            <View>
+              <Text style={styles.propertiesSectionTitle}>
+                Real Estate Portfolio ({filteredProperties.length})
+              </Text>
+              <Text style={styles.portfolioSubtitle}>
+                Track valuation, remaining debt, and equity across your portfolio
+              </Text>
+            </View>
+            <Link href="/add-property" asChild>
+              <TouchableOpacity
+                style={styles.addPropertyBtn}
+                onPress={() => triggerLightImpact()}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="add" size={18} color="#09090B" />
+                <Text style={styles.addPropertyBtnText}>Add Asset</Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+
           <View style={styles.filterSection}>
             <View style={styles.filterPillsRow}>
               <TouchableOpacity
@@ -273,6 +308,7 @@ export default function HomeownerAndPortfolioScreen() {
                   triggerSelectionHaptic();
                   setFilter('ALL');
                 }}
+                activeOpacity={0.7}
               >
                 <Text
                   style={[
@@ -293,6 +329,7 @@ export default function HomeownerAndPortfolioScreen() {
                   triggerSelectionHaptic();
                   setFilter('PRIMARY');
                 }}
+                activeOpacity={0.7}
               >
                 <Text
                   style={[
@@ -313,6 +350,7 @@ export default function HomeownerAndPortfolioScreen() {
                   triggerSelectionHaptic();
                   setFilter('RENTAL');
                 }}
+                activeOpacity={0.7}
               >
                 <Text
                   style={[
@@ -324,21 +362,7 @@ export default function HomeownerAndPortfolioScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <Link href="/add-property" asChild>
-              <TouchableOpacity
-                style={styles.addPropertyBtn}
-                onPress={() => triggerLightImpact()}
-              >
-                <Ionicons name="add" size={16} color="#09090B" />
-                <Text style={styles.addPropertyBtnText}>Add Asset</Text>
-              </TouchableOpacity>
-            </Link>
           </View>
-
-          <Text style={styles.propertiesSectionTitle}>
-            Managed Real Estate Assets ({filteredProperties.length})
-          </Text>
 
           {filteredProperties.map((prop) => (
             <PropertyCard
@@ -405,7 +429,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#18181B',
     borderRadius: 16,
     padding: 18,
-    marginBottom: 20,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#27272A',
   },
@@ -433,11 +457,14 @@ const styles = StyleSheet.create({
   },
   chip: {
     backgroundColor: '#27272A',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#3F3F46',
+    minHeight: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipActive: {
     backgroundColor: '#38BDF8',
@@ -452,16 +479,16 @@ const styles = StyleSheet.create({
     color: '#09090B',
   },
   termContainer: {
-    marginBottom: 14,
+    marginBottom: 8,
   },
   termToggleRow: {
     flexDirection: 'row',
     backgroundColor: '#09090B',
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#27272A',
     overflow: 'hidden',
-    height: 42,
+    height: 46, // Exceeds 44x44 dp standard
   },
   termBtn: {
     flex: 1,
@@ -481,27 +508,41 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   portfolioSection: {
-    marginTop: 4,
+    marginTop: 8,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#27272A',
+  },
+  portfolioHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  portfolioSubtitle: {
+    color: '#71717A',
+    fontSize: 11,
+    marginTop: 2,
   },
   filterSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
-    flexWrap: 'wrap',
-    gap: 8,
   },
   filterPillsRow: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   filterPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 8,
     backgroundColor: '#18181B',
     borderWidth: 1,
     borderColor: '#27272A',
+    minHeight: 38,
+    justifyContent: 'center',
   },
   filterPillActive: {
     backgroundColor: '#27272A',
@@ -509,7 +550,7 @@ const styles = StyleSheet.create({
   },
   filterPillText: {
     color: '#71717A',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
   },
   filterPillTextActive: {
@@ -519,21 +560,22 @@ const styles = StyleSheet.create({
   addPropertyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F59E0B', // Gold
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 8,
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
     gap: 4,
+    minHeight: 44, // Exceeds 44x44 dp standard
   },
   addPropertyBtnText: {
     color: '#09090B',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
   },
   propertiesSectionTitle: {
     color: '#FAFAFA',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 12,
+    fontSize: 17,
+    fontWeight: '800',
   },
 });
+

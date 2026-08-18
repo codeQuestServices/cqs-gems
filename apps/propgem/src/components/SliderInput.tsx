@@ -177,9 +177,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   stepBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
     backgroundColor: '#27272A',
     alignItems: 'center',
     justifyContent: 'center',
@@ -188,12 +188,12 @@ const styles = StyleSheet.create({
   },
   sliderWrapper: {
     flex: 1,
-    height: 36,
+    height: 44,
     justifyContent: 'center',
   },
   slider: {
     width: '100%',
-    height: 36,
+    height: 44,
   },
   footerRow: {
     flexDirection: 'row',
@@ -212,3 +212,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+

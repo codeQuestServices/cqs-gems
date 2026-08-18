@@ -19,5 +19,7 @@
 - Upgraded Investor Mode with NOI, Cap Rate, and Cash-on-Cash returns (`apps/propgem/app/(tabs)/cash-flow.tsx`).
 - Upgraded dedicated Mortgage and LTV analyzers (`mortgage.tsx`, `ltv.tsx`) and Add Property modal sheet (`add-property.tsx`).
 - Established permanent, self-updating UI Navigation & Cognitive Load Context system (`.agents/memory/ui_navigation_context.md`).
-- Workspace-wide TypeScript typecheck (`yarn typecheck`) and linting (`yarn lint`) passing with zero errors.
+- Executed Phase 2 UI/UX Refactoring: Built `CollapsibleSection`, encapsulated secondary outflows, and reduced Cognitive Load across all screens to Optimal (Ratings 1–2).
+- Workspace-wide TypeScript typecheck (`yarn typecheck`), linting (`yarn lint`), and unit tests (`yarn test`) passing with 100% success.
+
 
