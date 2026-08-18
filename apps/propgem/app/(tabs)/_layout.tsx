@@ -1,8 +1,15 @@
 import React from 'react';
+import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeInsets } from '../../src/hooks/useSafeInsets';
 import { triggerSelectionHaptic } from '../../src/utils/haptics';
+import {
+  PropGemEmblem,
+  MortgagePIIcon,
+  LtvShieldIcon,
+  CashFlowChartIcon,
+} from '../../src/components/icons/PropGemIcons';
 
 export default function TabLayout() {
   const { tabBarHeight, tabBarPaddingBottom } = useSafeInsets();
@@ -42,6 +49,11 @@ export default function TabLayout() {
         options={{
           title: 'Homeowner',
           headerTitle: 'PropGem Homeowner & Portfolio',
+          headerLeft: () => (
+            <View style={{ marginLeft: 16 }}>
+              <PropGemEmblem size={24} accentColor="#38BDF8" color="#FAFAFA" />
+            </View>
+          ),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
@@ -53,7 +65,7 @@ export default function TabLayout() {
           title: 'Mortgage',
           headerTitle: 'Mortgage Calculator',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calculator" size={size} color={color} />
+            <MortgagePIIcon size={size} color={color} accentColor={color === '#38BDF8' ? '#38BDF8' : '#71717A'} />
           ),
         }}
       />
@@ -63,7 +75,7 @@ export default function TabLayout() {
           title: 'LTV & Equity',
           headerTitle: 'Loan-to-Value & Equity',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="shield-checkmark" size={size} color={color} />
+            <LtvShieldIcon size={size} color={color} accentColor={color === '#38BDF8' ? '#22C55E' : '#71717A'} />
           ),
         }}
       />
@@ -73,7 +85,7 @@ export default function TabLayout() {
           title: 'Investor',
           headerTitle: 'Investor Cash Flow Sandbox',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="stats-chart" size={size} color={color} />
+            <CashFlowChartIcon size={size} color={color} accentColor={color === '#38BDF8' ? '#22C55E' : '#71717A'} />
           ),
         }}
       />

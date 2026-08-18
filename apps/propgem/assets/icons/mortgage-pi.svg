@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- House Roof & Gable Structure -->
+  <path d="M3 10.5L12 3l9 7.5" stroke="#38BDF8" />
+  <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" stroke="#A1A1AA" />
+  <!-- Precision P&I / Calculator Division Nodes -->
+  <line x1="9" y1="13" x2="15" y2="13" stroke="#38BDF8" stroke-width="2" />
+  <circle cx="9" cy="17" r="1" fill="#38BDF8" stroke="none" />
+  <circle cx="15" cy="17" r="1" fill="#38BDF8" stroke="none" />
+  <circle cx="12" cy="10" r="1" fill="#FAFAFA" stroke="none" />
+</svg>
