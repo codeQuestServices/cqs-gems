@@ -18,4 +18,6 @@
 - Upgraded Homeowner Calculator & Portfolio Hub (`apps/propgem/app/(tabs)/index.tsx`).
 - Upgraded Investor Mode with NOI, Cap Rate, and Cash-on-Cash returns (`apps/propgem/app/(tabs)/cash-flow.tsx`).
 - Upgraded dedicated Mortgage and LTV analyzers (`mortgage.tsx`, `ltv.tsx`) and Add Property modal sheet (`add-property.tsx`).
+- Established permanent, self-updating UI Navigation & Cognitive Load Context system (`.agents/memory/ui_navigation_context.md`).
 - Workspace-wide TypeScript typecheck (`yarn typecheck`) and linting (`yarn lint`) passing with zero errors.
+
