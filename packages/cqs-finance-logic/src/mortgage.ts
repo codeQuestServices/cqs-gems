@@ -1,4 +1,10 @@
-import { MortgageInput, MortgageCalculationResult, AmortizationPeriod } from './types';
+import {
+  MortgageInput,
+  MortgageCalculationResult,
+  AmortizationPeriod,
+  AmortizationMonth,
+  AmortizationScheduleInput,
+} from './types';
 
 /**
  * Calculates monthly mortgage payments, including P&I, taxes, insurance, and HOA.
@@ -71,7 +77,99 @@ export function calculateMortgage(input: MortgageInput): MortgageCalculationResu
 }
 
 /**
- * Generates an amortization schedule for a given mortgage.
+ * Calculates a comprehensive month-by-month amortization schedule with dynamic PMI drop-off tracking.
+ */
+export function calculateAmortizationSchedule(
+  input: AmortizationScheduleInput
+): AmortizationMonth[] {
+  const {
+    loanAmount,
+    annualInterestRate,
+    loanTermYears,
+    propertyValue,
+    pmiMonthly = 0,
+    pmiDropOffLtv = 0.80,
+  } = input;
+
+  const totalMonths = Math.max(0, loanTermYears * 12);
+  const schedule: AmortizationMonth[] = [];
+
+  if (loanAmount <= 0 || totalMonths <= 0) {
+    return schedule;
+  }
+
+  const monthlyRate = (annualInterestRate / 100) / 12;
+
+  let monthlyPAndI = 0;
+  if (monthlyRate === 0) {
+    monthlyPAndI = loanAmount / totalMonths;
+  } else {
+    monthlyPAndI =
+      (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths))) /
+      (Math.pow(1 + monthlyRate, totalMonths) - 1);
+  }
+
+  let remainingBalance = loanAmount;
+  let cumulativeInterest = 0;
+
+  for (let month = 1; month <= totalMonths; month++) {
+    if (remainingBalance <= 0) {
+      schedule.push({
+        month,
+        payment: 0,
+        principal: 0,
+        interest: 0,
+        pmi: 0,
+        totalPayment: 0,
+        remainingBalance: 0,
+        cumulativeInterest: round(cumulativeInterest),
+        isPmiActive: false,
+      });
+      continue;
+    }
+
+    const interest = remainingBalance * monthlyRate;
+    let principal = monthlyPAndI - interest;
+
+    if (month === totalMonths || principal >= remainingBalance) {
+      principal = remainingBalance;
+      remainingBalance = 0;
+    } else {
+      remainingBalance = Math.max(0, remainingBalance - principal);
+    }
+
+    cumulativeInterest += interest;
+
+    const currentLtv = propertyValue > 0 ? remainingBalance / propertyValue : 0;
+    const isPmiActive = propertyValue > 0 && currentLtv > (pmiDropOffLtv + 1e-9);
+    const activePmi = isPmiActive ? pmiMonthly : 0;
+
+    const roundedPrincipal = round(principal);
+    const roundedInterest = round(interest);
+    const roundedPayment = round(roundedPrincipal + roundedInterest);
+    const roundedPmi = round(activePmi);
+    const roundedTotalPayment = round(roundedPayment + roundedPmi);
+    const roundedBalance = round(remainingBalance);
+    const roundedCumulativeInterest = round(cumulativeInterest);
+
+    schedule.push({
+      month,
+      payment: roundedPayment,
+      principal: roundedPrincipal,
+      interest: roundedInterest,
+      pmi: roundedPmi,
+      totalPayment: roundedTotalPayment,
+      remainingBalance: roundedBalance,
+      cumulativeInterest: roundedCumulativeInterest,
+      isPmiActive,
+    });
+  }
+
+  return schedule;
+}
+
+/**
+ * Generates an amortization schedule for a given mortgage (legacy helper).
  */
 export function generateAmortizationSchedule(
   input: MortgageInput,

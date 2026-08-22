@@ -24,6 +24,8 @@
 - Designed and authored custom SVG vector assets and typed React Native components (`PropGemIcons.tsx`) for Owner and Investor dashboard metrics (Mortgage P&I, LTV Shield, PMI Drop-Off, Cash Flow, Cap Rate, and Portfolio Folder).
 - Configured Expo Android manifest in `apps/propgem/app.json` for adaptive icons and splash screen.
 - Workspace-wide TypeScript typecheck (`yarn typecheck`), linting (`yarn lint`), and unit tests (`yarn test`) passing with 100% success.
+- Implemented comprehensive amortization schedule generator (`calculateAmortizationSchedule`) with full loan compounding, cumulative interest tracking, and dynamic PMI drop-off calculations in `@cqs/finance-logic` (13/13 passing tests).
+- Integrated interactive, virtualized **"Amortization Schedule & PMI Timeline"** into `apps/propgem/app/(tabs)/mortgage.tsx` with FlatList optimization, milestone badges (PMI Cancellation Month, Equity Crossover Point), and standard `Intl.NumberFormat` helpers.
 
 
 

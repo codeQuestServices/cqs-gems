@@ -1,5 +1,6 @@
 import {
   calculateMortgage,
+  calculateAmortizationSchedule,
   generateAmortizationSchedule,
   calculateLTV,
   calculateCashFlow,
@@ -60,6 +61,96 @@ describe('@cqs/finance-logic Test Suite', () => {
       expect(schedule[0].interestPayment).toBe(1200);
       expect(schedule[0].remainingBalance).toBeLessThan(240000);
       expect(schedule[11].month).toBe(12);
+    });
+
+    it('should calculate full 30-year and 15-year schedules with exact array lengths and zero final balance', () => {
+      const schedule30 = calculateAmortizationSchedule({
+        loanAmount: 320000,
+        annualInterestRate: 6.0,
+        loanTermYears: 30,
+        propertyValue: 400000,
+      });
+
+      const schedule15 = calculateAmortizationSchedule({
+        loanAmount: 320000,
+        annualInterestRate: 5.5,
+        loanTermYears: 15,
+        propertyValue: 400000,
+      });
+
+      expect(schedule30).toHaveLength(360);
+      expect(schedule15).toHaveLength(180);
+
+      expect(schedule30[359].month).toBe(360);
+      expect(schedule30[359].remainingBalance).toBe(0);
+
+      expect(schedule15[179].month).toBe(180);
+      expect(schedule15[179].remainingBalance).toBe(0);
+    });
+
+    it('should correctly calculate cumulative interest across the loan duration', () => {
+      const mortgage = calculateMortgage({
+        homePrice: 400000,
+        downPayment: 80000,
+        annualInterestRate: 6.0,
+        loanTermYears: 30,
+      });
+
+      const schedule = calculateAmortizationSchedule({
+        loanAmount: 320000,
+        annualInterestRate: 6.0,
+        loanTermYears: 30,
+        propertyValue: 400000,
+      });
+
+      const finalMonth = schedule[schedule.length - 1];
+      // Verify cumulative interest matches mortgage total interest paid within standard penny rounding drift (< $2 across 360 months)
+      expect(Math.abs(finalMonth.cumulativeInterest - mortgage.totalInterestPaid)).toBeLessThan(2);
+      expect(finalMonth.cumulativeInterest).toBeGreaterThan(370000);
+    });
+
+    it('should track exact PMI drop-off month for 90% LTV vs 80% LTV loans', () => {
+      // 90% LTV loan: Property $400k, Loan $360k. 80% threshold = $320,000.
+      const schedule90 = calculateAmortizationSchedule({
+        loanAmount: 360000,
+        annualInterestRate: 6.0,
+        loanTermYears: 30,
+        propertyValue: 400000,
+        pmiMonthly: 150,
+        pmiDropOffLtv: 0.80,
+      });
+
+      expect(schedule90).toHaveLength(360);
+      expect(schedule90[0].isPmiActive).toBe(true);
+      expect(schedule90[0].pmi).toBe(150);
+      expect(schedule90[0].totalPayment).toBe(schedule90[0].payment + 150);
+
+      // Find the first month where PMI drops off
+      const firstPmiOffMonth = schedule90.find((m) => !m.isPmiActive);
+      expect(firstPmiOffMonth).toBeDefined();
+      expect(firstPmiOffMonth!.pmi).toBe(0);
+      expect(firstPmiOffMonth!.remainingBalance).toBeLessThanOrEqual(320000);
+
+      // Verify the month immediately preceding drop-off had active PMI and balance > $320,000
+      const prevMonth = schedule90[firstPmiOffMonth!.month - 2];
+      expect(prevMonth.isPmiActive).toBe(true);
+      expect(prevMonth.pmi).toBe(150);
+      expect(prevMonth.remainingBalance).toBeGreaterThan(320000);
+
+      // 80% LTV loan: Property $400k, Loan $320k. Never requires PMI.
+      const schedule80 = calculateAmortizationSchedule({
+        loanAmount: 320000,
+        annualInterestRate: 6.0,
+        loanTermYears: 30,
+        propertyValue: 400000,
+        pmiMonthly: 150,
+        pmiDropOffLtv: 0.80,
+      });
+
+      expect(schedule80).toHaveLength(360);
+      // From month 1, remainingBalance is strictly <= 320,000
+      expect(schedule80.every((m) => !m.isPmiActive)).toBe(true);
+      expect(schedule80.every((m) => m.pmi === 0)).toBe(true);
     });
   });
 

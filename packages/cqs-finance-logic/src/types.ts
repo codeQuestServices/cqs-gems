@@ -39,7 +39,7 @@ export interface MortgageCalculationResult {
 }
 
 /**
- * Single period entry in an amortization schedule
+ * Single period entry in an amortization schedule (legacy)
  */
 export interface AmortizationPeriod {
   month: number;
@@ -47,6 +47,33 @@ export interface AmortizationPeriod {
   interestPayment: number;
   totalPayment: number;
   remainingBalance: number;
+}
+
+/**
+ * Detailed single month breakdown in an amortization schedule with PMI tracking
+ */
+export interface AmortizationMonth {
+  month: number;
+  payment: number;
+  principal: number;
+  interest: number;
+  pmi: number;
+  totalPayment: number;
+  remainingBalance: number;
+  cumulativeInterest: number;
+  isPmiActive: boolean;
+}
+
+/**
+ * Parameters for calculating comprehensive amortization schedule
+ */
+export interface AmortizationScheduleInput {
+  loanAmount: number;
+  annualInterestRate: number;
+  loanTermYears: number;
+  propertyValue: number;
+  pmiMonthly?: number;
+  pmiDropOffLtv?: number;
 }
 
 /**
